@@ -27,10 +27,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-// --- IMPORT AÑADIDO ---
 import androidx.navigation.NavOptions;
 
-// --- ASEGÚRATE DE TENER ESTE IMPORT CORRECTO ---
 import com.example.digibook_examen1_1198109.R;
 import com.example.digibook_examen1_1198109.databinding.FragmentDashboardBinding;
 
@@ -39,7 +37,8 @@ public class dashboardFragment extends Fragment {
     private FragmentDashboardBinding binding;
     private ActivityResultLauncher<String> requestCameraPermissionLauncher;
     private ActivityResultLauncher<Intent> cameraLauncher;
-    private ActivityResultLauncher<String> requestStoragePermissionLauncher;
+    // --- YA NO NECESITAMOS EL LAUNCHER PARA PERMISO DE ALMACENAMIENTO ---
+    // private ActivityResultLauncher<String> requestStoragePermissionLauncher;
     private ActivityResultLauncher<Intent> pdfPickerLauncher;
 
     @Override
@@ -62,11 +61,15 @@ public class dashboardFragment extends Fragment {
                 Bundle extras = result.getData().getExtras();
                 if (extras != null) {
                     Bitmap imageBitmap = (Bitmap) extras.get("data");
-                    binding.imageUserProfile.setImageBitmap(imageBitmap);
+                    if (binding != null) { // Check binding is not null
+                        binding.imageUserProfile.setImageBitmap(imageBitmap);
+                    }
                 }
             }
         });
 
+        // --- YA NO NECESITAMOS REGISTRAR EL LAUNCHER PARA PERMISO DE ALMACENAMIENTO ---
+        /*
         // 3. Launcher para solicitar permiso de ALMACENAMIENTO
         requestStoragePermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
             if (isGranted) {
@@ -75,12 +78,14 @@ public class dashboardFragment extends Fragment {
                 Toast.makeText(getContext(), R.string.permission_storage_denied, Toast.LENGTH_LONG).show();
             }
         });
+        */
 
-        // 4. Launcher para el resultado del SELECTOR DE PDF
+        // 4. Launcher para el resultado del SELECTOR DE PDF (se mantiene)
         pdfPickerLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == AppCompatActivity.RESULT_OK && result.getData() != null) {
                 Uri uri = result.getData().getData();
                 Toast.makeText(getContext(), "PDF seleccionado: " + (uri != null ? uri.getPath() : "Error"), Toast.LENGTH_LONG).show();
+                // Aquí podrías hacer algo con la URI del PDF seleccionado
             }
         });
     }
@@ -96,46 +101,43 @@ public class dashboardFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // 1. Recuperar y mostrar el nombre de usuario de los argumentos
+        // 1. Recuperar y mostrar el nombre de usuario
         if (getArguments() != null) {
             String username = getArguments().getString("USERNAME_EXTRA", "Usuario");
-            binding.textUsername.setText(username);
-
-            // Opcional: Mostrar el nombre de usuario en la ActionBar
-            // Añadimos comprobación por si el ActionBar es nulo
-            if (((AppCompatActivity) requireActivity()).getSupportActionBar() != null) {
-                ((AppCompatActivity) requireActivity()).getSupportActionBar().setTitle("Perfil de " + username);
+            if (binding != null) { // Check binding is not null
+                binding.textUsername.setText(username);
+            }
+            // Actualizar ActionBar
+            if (getActivity() instanceof AppCompatActivity && ((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
+                ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Perfil de " + username);
             }
         }
 
-        // 2. Configurar listeners para los botones
+        // 2. Configurar listeners
         setupClickListeners();
 
-        // 3. Añadir el proveedor de menú (para el botón de logout)
+        // 3. Configurar menú
         setupMenu();
     }
 
     private void setupClickListeners() {
+        if (binding == null) return; // Check binding is not null
+
         // --- Acción: Tomar foto ---
         binding.imageUserProfile.setOnClickListener(v -> {
+            // Verifica el permiso antes de lanzar
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                 dispatchTakePictureIntent();
             } else {
+                // Si no está concedido, solicita el permiso
                 requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA);
             }
         });
 
-        // --- Acción: Abrir selector de PDF ---
+        // --- Acción: Abrir selector de PDF (SIN verificar permiso) ---
         binding.buttonLastNotebook.setOnClickListener(v -> {
-            // Simplificado: Android moderno maneja permisos de almacenamiento de forma diferente.
-            // ACTION_GET_CONTENT no siempre requiere permiso explícito READ_EXTERNAL_STORAGE,
-            // pero lo mantendremos para la demostración de solicitud de permiso.
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                dispatchOpenPdfIntent();
-            } else {
-                requestStoragePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
-            }
-            // dispatchOpenPdfIntent(); // Podrías llamar directamente si no necesitas demostrar el permiso
+            // Llama directamente al método que lanza el Intent
+            dispatchOpenPdfIntent();
         });
 
         // --- Acción: Abrir app de notas ---
@@ -145,16 +147,17 @@ public class dashboardFragment extends Fragment {
     }
 
     private void setupMenu() {
-        requireActivity().addMenuProvider(new MenuProvider() {
+        // Asegúrate de que la actividad y el ciclo de vida estén disponibles
+        if (getActivity() == null || getViewLifecycleOwner() == null) return;
+
+        getActivity().addMenuProvider(new MenuProvider() {
             @Override
             public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
-                // Asegúrate que R.menu.dashboard_menu es correcto
                 menuInflater.inflate(R.menu.dashboard_menu, menu);
             }
 
             @Override
             public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
-                // Asegúrate que R.id.action_logout es correcto
                 if (menuItem.getItemId() == R.id.action_logout) {
                     logout();
                     return true;
@@ -164,31 +167,23 @@ public class dashboardFragment extends Fragment {
         }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
     }
 
-    /**
-     * Cierra la sesión y regresa al LoginFragment, limpiando la pila.
-     */
     private void logout() {
-        // Asegúrate que la vista no es nula antes de buscar NavController
-        if (getView() == null) return;
+        if (getView() == null) return; // Check view is not null
         NavController navController = Navigation.findNavController(requireView());
-
-        // Opciones para limpiar toda la pila de navegación
         NavOptions navOptions = new NavOptions.Builder()
-                .setPopUpTo(R.id.nav_graph, true) // Popea hasta el inicio del grafo
+                .setPopUpTo(R.id.nav_graph, true)
                 .build();
-
-        // Asegúrate que R.id.action_dashboardFragment_to_loginFragment es correcto
         navController.navigate(R.id.action_dashboardFragment_to_loginFragment, null, navOptions);
     }
-
-    // --- Métodos de Intents (copiados de la actividad anterior) ---
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         try {
             cameraLauncher.launch(takePictureIntent);
         } catch (ActivityNotFoundException e) {
-            Toast.makeText(getContext(), R.string.no_camera_app, Toast.LENGTH_SHORT).show();
+            if (getContext() != null) { // Check context is not null
+                Toast.makeText(getContext(), R.string.no_camera_app, Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -197,36 +192,35 @@ public class dashboardFragment extends Fragment {
         intent.setType("application/pdf");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         try {
+            // Usamos createChooser para dar opciones al usuario si tiene varios visores de PDF
             pdfPickerLauncher.launch(Intent.createChooser(intent, "Selecciona un PDF"));
         } catch (ActivityNotFoundException e) {
-            Toast.makeText(getContext(), R.string.no_pdf_picker, Toast.LENGTH_SHORT).show();
+            if (getContext() != null) { // Check context is not null
+                Toast.makeText(getContext(), R.string.no_pdf_picker, Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
     private void dispatchNewNoteIntent() {
-        // Acción estándar para crear una nota, más genérica que CREATE_NOTE
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
-        // Puedes pre-rellenar con texto si quieres
-        // intent.putExtra(Intent.EXTRA_SUBJECT, "Nueva Nota DigiBook");
-        // intent.putExtra(Intent.EXTRA_TEXT, "Escribe aquí...");
-
-        // Usamos createChooser para dar opciones al usuario si tiene varias apps de notas
         try {
             startActivity(Intent.createChooser(intent, "Crear nota con..."));
         } catch (ActivityNotFoundException e) {
-            Toast.makeText(getContext(), R.string.no_note_app, Toast.LENGTH_SHORT).show();
+            if (getContext() != null) { // Check context is not null
+                Toast.makeText(getContext(), R.string.no_note_app, Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        binding = null;
-        // Opcional: Restaurar título de la ActionBar
-        // Añadimos comprobación por si el ActionBar es nulo
-        if (((AppCompatActivity) requireActivity()).getSupportActionBar() != null) {
-            ((AppCompatActivity) requireActivity()).getSupportActionBar().setTitle(getString(R.string.app_name));
+        // Restaurar título de la ActionBar si es necesario y la actividad existe
+        if (getActivity() instanceof AppCompatActivity && ((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(getString(R.string.app_name));
         }
+        binding = null; // Important for Fragments to avoid memory leaks
     }
 }
+
