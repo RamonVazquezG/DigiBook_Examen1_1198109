@@ -1,5 +1,5 @@
 <resources>
-    <!-- Nombre de la app (actualizado) -->
+    <!-- Nombre de la app -->
     <string name="app_name">DigiBook_Examen1_1198109</string>
 
     <!-- Onboarding -->
@@ -14,7 +14,7 @@
     <string name="onboarding_desc_1">Tu compañero digital para tomar notas.</string>
 
     <!-- Onboarding - Slide 2 -->
-    <string name="onboarding_title_2">Estudio Tradicional, Mètodo Moderno</string>
+    <string name="onboarding_title_2">Estudio Tradicional, Método Moderno</string>
     <string name="onboarding_desc_2">Actualiza tus métodos de estudio. Con DigiBook puedes tomar apuntes con tus dipositivos del día a día sin perder la familiaridad de un cuaderno tradicional.</string>
 
     <!-- Onboarding - Slide 3 -->
@@ -22,8 +22,8 @@
     <string name="onboarding_desc_3">Presiona el botón debajo para comenzar tu nueva experiencia.</string>
 
     <!-- Login -->
-    <string name="username">Usuario (admin)</string>
-    <string name="password">Contraseña (1234)</string>
+    <string name="username">Usuario</string>
+    <string name="password">Contraseña</string>
     <string name="login">Iniciar Sesión</string>
     <string name="login_error">Usuario o contraseña incorrectos.</string>
     <string name="login_success">¡Bienvenido!</string>

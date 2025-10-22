@@ -21,36 +21,28 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main); // Carga el layout con el NavHost
 
-        // Configuración de EdgeToEdge (de tu plantilla)
+        // Configuración de EdgeToEdge
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        // --- SOLUCIÓN: Obtener NavController del NavHostFragment ---
-        // 1. Obtener el NavHostFragment usando el ID del FragmentContainerView.
+        // Obtener el NavHostFragment usando el ID del FragmentContainerView.
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment);
 
-        // 2. Obtener el NavController DESDE el NavHostFragment.
-        //    Esto asegura que el NavController ya existe cuando lo pides.
+        // Obtener el NavController DESDE el NavHostFragment.
         if (navHostFragment != null) {
             navController = navHostFragment.getNavController();
 
-            // 3. Configurar la ActionBar con el NavController obtenido.
+            // Configurar la ActionBar con el NavController.
             NavigationUI.setupActionBarWithNavController(this, navController);
-        } else {
-            // Manejar el caso improbable de que el fragmento no se encuentre
-            // (esto indicaría un problema grave en el layout o configuración)
-            // Log.e("MainActivity", "NavHostFragment not found!");
         }
     }
 
-    // Manejar el evento de clic en el botón "Up" (Atrás)
     @Override
     public boolean onSupportNavigateUp() {
-        // Asegurarse de que navController no sea null antes de usarlo
         return (navController != null && navController.navigateUp()) || super.onSupportNavigateUp();
     }
 }

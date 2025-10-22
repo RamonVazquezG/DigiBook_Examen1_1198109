@@ -18,7 +18,7 @@ public class loginFragment extends Fragment {
 
     private FragmentLoginBinding binding;
 
-    // Credenciales simuladas
+    // Credenciales
     private final String VALID_USERNAME = "admin";
     private final String VALID_PASSWORD = "1234";
 
@@ -37,9 +37,7 @@ public class loginFragment extends Fragment {
         binding.buttonLogin.setOnClickListener(v -> validateLogin(v));
     }
 
-    /**
-     * Valida las credenciales ingresadas por el usuario.
-     */
+    // Valida las credenciales ingresadas por el usuario.
     private void validateLogin(View view) {
         String username = binding.editTextUsername.getText().toString().trim();
         String password = binding.editTextPassword.getText().toString().trim();
@@ -54,20 +52,12 @@ public class loginFragment extends Fragment {
         }
     }
 
-    /**
-     * Navega a DashboardFragment, pasando el nombre de usuario.
-     *
-     * @param view     La vista actual (para encontrar el NavController).
-     * @param username El nombre de usuario validado.
-     */
     private void navigateToDashboard(View view, String username) {
         NavController navController = Navigation.findNavController(view);
 
-        // Pasamos el nombre de usuario al Dashboard usando un Bundle
         Bundle bundle = new Bundle();
         bundle.putString("USERNAME_EXTRA", username);
 
-        // Navegamos usando la acción definida en nav_graph.xml
         navController.navigate(R.id.action_loginFragment_to_dashboardFragment, bundle);
     }
 

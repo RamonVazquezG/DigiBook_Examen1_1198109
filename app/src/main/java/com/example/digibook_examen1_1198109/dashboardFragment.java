@@ -37,8 +37,6 @@ public class dashboardFragment extends Fragment {
     private FragmentDashboardBinding binding;
     private ActivityResultLauncher<String> requestCameraPermissionLauncher;
     private ActivityResultLauncher<Intent> cameraLauncher;
-    // --- YA NO NECESITAMOS EL LAUNCHER PARA PERMISO DE ALMACENAMIENTO ---
-    // private ActivityResultLauncher<String> requestStoragePermissionLauncher;
     private ActivityResultLauncher<Intent> pdfPickerLauncher;
 
     @Override
@@ -46,7 +44,7 @@ public class dashboardFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
 
-        // 1. Launcher para solicitar permiso de CÁMARA
+        // Launcher para solicitar permiso de camara
         requestCameraPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
             if (isGranted) {
                 dispatchTakePictureIntent();
@@ -55,37 +53,25 @@ public class dashboardFragment extends Fragment {
             }
         });
 
-        // 2. Launcher para el resultado de la CÁMARA
+        // Launcher para el resultado de la camara
         cameraLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == AppCompatActivity.RESULT_OK && result.getData() != null) {
                 Bundle extras = result.getData().getExtras();
                 if (extras != null) {
                     Bitmap imageBitmap = (Bitmap) extras.get("data");
-                    if (binding != null) { // Check binding is not null
+                    if (binding != null) {
                         binding.imageUserProfile.setImageBitmap(imageBitmap);
                     }
                 }
             }
         });
 
-        // --- YA NO NECESITAMOS REGISTRAR EL LAUNCHER PARA PERMISO DE ALMACENAMIENTO ---
-        /*
-        // 3. Launcher para solicitar permiso de ALMACENAMIENTO
-        requestStoragePermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-            if (isGranted) {
-                dispatchOpenPdfIntent();
-            } else {
-                Toast.makeText(getContext(), R.string.permission_storage_denied, Toast.LENGTH_LONG).show();
-            }
-        });
-        */
 
-        // 4. Launcher para el resultado del SELECTOR DE PDF (se mantiene)
+        // Launcher para el resultado del selector de pdf
         pdfPickerLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == AppCompatActivity.RESULT_OK && result.getData() != null) {
                 Uri uri = result.getData().getData();
                 Toast.makeText(getContext(), "PDF seleccionado: " + (uri != null ? uri.getPath() : "Error"), Toast.LENGTH_LONG).show();
-                // Aquí podrías hacer algo con la URI del PDF seleccionado
             }
         });
     }
@@ -101,7 +87,7 @@ public class dashboardFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // 1. Recuperar y mostrar el nombre de usuario
+        // Recuperar y mostrar el nombre de usuario
         if (getArguments() != null) {
             String username = getArguments().getString("USERNAME_EXTRA", "Usuario");
             if (binding != null) { // Check binding is not null
@@ -113,41 +99,35 @@ public class dashboardFragment extends Fragment {
             }
         }
 
-        // 2. Configurar listeners
         setupClickListeners();
 
-        // 3. Configurar menú
         setupMenu();
     }
 
     private void setupClickListeners() {
-        if (binding == null) return; // Check binding is not null
+        if (binding == null) return;
 
-        // --- Acción: Tomar foto ---
         binding.imageUserProfile.setOnClickListener(v -> {
-            // Verifica el permiso antes de lanzar
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                 dispatchTakePictureIntent();
             } else {
-                // Si no está concedido, solicita el permiso
+                // solicita el permiso
                 requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA);
             }
         });
 
-        // --- Acción: Abrir selector de PDF (SIN verificar permiso) ---
         binding.buttonLastNotebook.setOnClickListener(v -> {
             // Llama directamente al método que lanza el Intent
             dispatchOpenPdfIntent();
         });
 
-        // --- Acción: Abrir app de notas ---
+        // Abrir app de notas
         binding.buttonNewNotebook.setOnClickListener(v -> {
             dispatchNewNoteIntent();
         });
     }
 
     private void setupMenu() {
-        // Asegúrate de que la actividad y el ciclo de vida estén disponibles
         if (getActivity() == null || getViewLifecycleOwner() == null) return;
 
         getActivity().addMenuProvider(new MenuProvider() {
@@ -168,7 +148,7 @@ public class dashboardFragment extends Fragment {
     }
 
     private void logout() {
-        if (getView() == null) return; // Check view is not null
+        if (getView() == null) return;
         NavController navController = Navigation.findNavController(requireView());
         NavOptions navOptions = new NavOptions.Builder()
                 .setPopUpTo(R.id.nav_graph, true)
@@ -181,7 +161,7 @@ public class dashboardFragment extends Fragment {
         try {
             cameraLauncher.launch(takePictureIntent);
         } catch (ActivityNotFoundException e) {
-            if (getContext() != null) { // Check context is not null
+            if (getContext() != null) {
                 Toast.makeText(getContext(), R.string.no_camera_app, Toast.LENGTH_SHORT).show();
             }
         }
@@ -192,10 +172,9 @@ public class dashboardFragment extends Fragment {
         intent.setType("application/pdf");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         try {
-            // Usamos createChooser para dar opciones al usuario si tiene varios visores de PDF
             pdfPickerLauncher.launch(Intent.createChooser(intent, "Selecciona un PDF"));
         } catch (ActivityNotFoundException e) {
-            if (getContext() != null) { // Check context is not null
+            if (getContext() != null) {
                 Toast.makeText(getContext(), R.string.no_pdf_picker, Toast.LENGTH_SHORT).show();
             }
         }
@@ -207,7 +186,7 @@ public class dashboardFragment extends Fragment {
         try {
             startActivity(Intent.createChooser(intent, "Crear nota con..."));
         } catch (ActivityNotFoundException e) {
-            if (getContext() != null) { // Check context is not null
+            if (getContext() != null) {
                 Toast.makeText(getContext(), R.string.no_note_app, Toast.LENGTH_SHORT).show();
             }
         }
@@ -216,11 +195,10 @@ public class dashboardFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // Restaurar título de la ActionBar si es necesario y la actividad existe
         if (getActivity() instanceof AppCompatActivity && ((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
             ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(getString(R.string.app_name));
         }
-        binding = null; // Important for Fragments to avoid memory leaks
+        binding = null;
     }
 }
 

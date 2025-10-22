@@ -22,7 +22,7 @@
             android:layout_width="250dp"
             android:layout_height="250dp"
             android:contentDescription="@string/onboarding_image_description"
-            app:srcCompat="@drawable/ic_launcher_foreground"
+            app:srcCompat="@drawable/ic_ob3"
             tools:srcCompat="@tools:sample/avatars" />
 
         <TextView
