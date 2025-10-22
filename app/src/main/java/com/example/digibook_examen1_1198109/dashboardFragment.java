@@ -27,8 +27,11 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.ui.NavOptions;
+// --- IMPORT AÑADIDO ---
+import androidx.navigation.NavOptions;
 
+// --- ASEGÚRATE DE TENER ESTE IMPORT CORRECTO ---
+import com.example.digibook_examen1_1198109.R;
 import com.example.digibook_examen1_1198109.databinding.FragmentDashboardBinding;
 
 public class dashboardFragment extends Fragment {
@@ -77,7 +80,7 @@ public class dashboardFragment extends Fragment {
         pdfPickerLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == AppCompatActivity.RESULT_OK && result.getData() != null) {
                 Uri uri = result.getData().getData();
-                Toast.makeText(getContext(), "PDF seleccionado: " + uri.getPath(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "PDF seleccionado: " + (uri != null ? uri.getPath() : "Error"), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -99,7 +102,10 @@ public class dashboardFragment extends Fragment {
             binding.textUsername.setText(username);
 
             // Opcional: Mostrar el nombre de usuario en la ActionBar
-            ((AppCompatActivity) requireActivity()).getSupportActionBar().setTitle("Perfil de " + username);
+            // Añadimos comprobación por si el ActionBar es nulo
+            if (((AppCompatActivity) requireActivity()).getSupportActionBar() != null) {
+                ((AppCompatActivity) requireActivity()).getSupportActionBar().setTitle("Perfil de " + username);
+            }
         }
 
         // 2. Configurar listeners para los botones
@@ -121,11 +127,15 @@ public class dashboardFragment extends Fragment {
 
         // --- Acción: Abrir selector de PDF ---
         binding.buttonLastNotebook.setOnClickListener(v -> {
+            // Simplificado: Android moderno maneja permisos de almacenamiento de forma diferente.
+            // ACTION_GET_CONTENT no siempre requiere permiso explícito READ_EXTERNAL_STORAGE,
+            // pero lo mantendremos para la demostración de solicitud de permiso.
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 dispatchOpenPdfIntent();
             } else {
                 requestStoragePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
             }
+            // dispatchOpenPdfIntent(); // Podrías llamar directamente si no necesitas demostrar el permiso
         });
 
         // --- Acción: Abrir app de notas ---
@@ -138,11 +148,13 @@ public class dashboardFragment extends Fragment {
         requireActivity().addMenuProvider(new MenuProvider() {
             @Override
             public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+                // Asegúrate que R.menu.dashboard_menu es correcto
                 menuInflater.inflate(R.menu.dashboard_menu, menu);
             }
 
             @Override
             public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+                // Asegúrate que R.id.action_logout es correcto
                 if (menuItem.getItemId() == R.id.action_logout) {
                     logout();
                     return true;
@@ -156,6 +168,8 @@ public class dashboardFragment extends Fragment {
      * Cierra la sesión y regresa al LoginFragment, limpiando la pila.
      */
     private void logout() {
+        // Asegúrate que la vista no es nula antes de buscar NavController
+        if (getView() == null) return;
         NavController navController = Navigation.findNavController(requireView());
 
         // Opciones para limpiar toda la pila de navegación
@@ -163,6 +177,7 @@ public class dashboardFragment extends Fragment {
                 .setPopUpTo(R.id.nav_graph, true) // Popea hasta el inicio del grafo
                 .build();
 
+        // Asegúrate que R.id.action_dashboardFragment_to_loginFragment es correcto
         navController.navigate(R.id.action_dashboardFragment_to_loginFragment, null, navOptions);
     }
 
@@ -189,9 +204,16 @@ public class dashboardFragment extends Fragment {
     }
 
     private void dispatchNewNoteIntent() {
-        Intent intent = new Intent(Intent.ACTION_CREATE_NOTE);
+        // Acción estándar para crear una nota, más genérica que CREATE_NOTE
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        // Puedes pre-rellenar con texto si quieres
+        // intent.putExtra(Intent.EXTRA_SUBJECT, "Nueva Nota DigiBook");
+        // intent.putExtra(Intent.EXTRA_TEXT, "Escribe aquí...");
+
+        // Usamos createChooser para dar opciones al usuario si tiene varias apps de notas
         try {
-            startActivity(intent);
+            startActivity(Intent.createChooser(intent, "Crear nota con..."));
         } catch (ActivityNotFoundException e) {
             Toast.makeText(getContext(), R.string.no_note_app, Toast.LENGTH_SHORT).show();
         }
@@ -202,6 +224,9 @@ public class dashboardFragment extends Fragment {
         super.onDestroyView();
         binding = null;
         // Opcional: Restaurar título de la ActionBar
-        ((AppCompatActivity) requireActivity()).getSupportActionBar().setTitle(getString(R.string.app_name));
+        // Añadimos comprobación por si el ActionBar es nulo
+        if (((AppCompatActivity) requireActivity()).getSupportActionBar() != null) {
+            ((AppCompatActivity) requireActivity()).getSupportActionBar().setTitle(getString(R.string.app_name));
+        }
     }
 }
