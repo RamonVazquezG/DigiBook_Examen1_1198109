@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/onboarding1Fragment">
+
+    <!-- Onboarding: Slide 1 -->
+    <fragment
+        android:id="@+id/onboarding1Fragment"
+        android:name="com.example.digibook_examen1_1198109.onboarding1Fragment"
+        android:label="fragment_onboarding_1"
+        tools:layout="@layout/fragment_onboarding1" >
+        <action
+            android:id="@+id/action_onboarding1Fragment_to_onboarding2Fragment"
+            app:destination="@id/onboarding2Fragment" />
+        <action
+            android:id="@+id/action_onboarding1Fragment_to_loginFragment"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- Onboarding: Slide 2 -->
+    <fragment
+        android:id="@+id/onboarding2Fragment"
+        android:name="com.example.digibook_examen1_1198109.onboarding2Fragment"
+        android:label="fragment_onboarding_2"
+        tools:layout="@layout/fragment_onboarding2" >
+        <action
+            android:id="@+id/action_onboarding2Fragment_to_onboarding3Fragment"
+            app:destination="@id/onboarding3Fragment" />
+        <action
+            android:id="@+id/action_onboarding2Fragment_to_onboarding1Fragment"
+            app:destination="@id/onboarding1Fragment" />
+        <action
+            android:id="@+id/action_onboarding2Fragment_to_loginFragment"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- Onboarding: Slide 3 -->
+    <fragment
+        android:id="@+id/onboarding3Fragment"
+        android:name="com.example.digibook_examen1_1198109.onboarding3Fragment"
+        android:label="fragment_onboarding_3"
+        tools:layout="@layout/fragment_onboarding3" >
+        <action
+            android:id="@+id/action_onboarding3Fragment_to_loginFragment"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_onboarding3Fragment_to_onboarding2Fragment"
+            app:destination="@id/onboarding2Fragment" />
+    </fragment>
+
+    <!-- Pantalla de Login -->
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.digibook_examen1_1198109.loginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_loginFragment_to_dashboardFragment"
+            app:destination="@id/dashboardFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- Pantalla de Dashboard -->
+    <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="com.example.digibook_examen1_1198109.dashboardFragment"
+        android:label="fragment_dashboard"
+        tools:layout="@layout/fragment_dashboard" >
+        <argument
+            android:name="USERNAME_EXTRA"
+            app:argType="string"
+            android:defaultValue="Usuario" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_loginFragment"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
+</navigation>
