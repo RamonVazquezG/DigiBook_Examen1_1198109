@@ -43,8 +43,6 @@ public class dashboardFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // --- Inicializar los ActivityResultLaunchers ---
-        // Deben registrarse en onCreate() o onAttach() del Fragment.
 
         // 1. Launcher para solicitar permiso de CÁMARA
         requestCameraPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
