@@ -48,6 +48,8 @@ dependencies {
     // Componentes de UI para el Dashboard
     implementation(libs.cardview)
     implementation(libs.gridlayout)
+    implementation(libs.androidx.navigation.fragment)
+    implementation(libs.androidx.navigation.ui)
 
     // Dependencias de Test
     testImplementation(libs.junit)

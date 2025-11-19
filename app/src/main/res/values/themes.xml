@@ -1,11 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!--
-      Este es el tema de tu repositorio.
-      Lo ajustamos para que use Theme.MaterialComponents en lugar de Material3,
-      para que coincida con las dependencias de tu repo (appcompat 1.7.1, material 1.13.0).
-    -->
+
     <style name="Base.Theme.DigiBook_Examen1_1198109" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <!-- Personaliza tu tema aquí -->
+
         <item name="colorPrimary">@color/purple_500</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>
         <item name="colorOnPrimary">@color/white</item>
@@ -17,10 +13,7 @@
 
     <style name="Theme.DigiBook_Examen1_1198109" parent="Base.Theme.DigiBook_Examen1_1198109" />
 
-    <!--
-      Tema sin ActionBar para usar en fragmentos específicos si es necesario
-      (Aunque la ActionBar ahora se maneja globalmente en MainActivity)
-    -->
+
     <style name="Theme.DigiBook.NoActionBar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
