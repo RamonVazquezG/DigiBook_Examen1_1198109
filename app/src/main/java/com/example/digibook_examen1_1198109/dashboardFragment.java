@@ -326,6 +326,7 @@ public class dashboardFragment extends Fragment {
         navController.navigate(R.id.action_dashboardFragment_to_loginFragment, null, navOptions);
     }
 
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
