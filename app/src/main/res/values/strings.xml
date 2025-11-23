@@ -1,5 +1,4 @@
 <resources>
-    <!-- Nombre de la app -->
     <string name="app_name">DigiBook_Examen1_1198109</string>
 
     <!-- Onboarding -->
@@ -8,40 +7,50 @@
     <string name="back">Atrás</string>
     <string name="finish">Terminar</string>
     <string name="onboarding_image_description">Imagen de introducción</string>
-
-    <!-- Onboarding - Slide 1 -->
     <string name="onboarding_title_1">Bienvenido a DigiBook</string>
     <string name="onboarding_desc_1">Tu compañero digital para tomar notas.</string>
-
-    <!-- Onboarding - Slide 2 -->
     <string name="onboarding_title_2">Estudio Tradicional, Método Moderno</string>
-    <string name="onboarding_desc_2">Actualiza tus métodos de estudio. Con DigiBook puedes tomar apuntes con tus dipositivos del día a día sin perder la familiaridad de un cuaderno tradicional.</string>
-
-    <!-- Onboarding - Slide 3 -->
+    <string name="onboarding_desc_2">Actualiza tus métodos de estudio.</string>
     <string name="onboarding_title_3">¿Listo para Explorar?</string>
-    <string name="onboarding_desc_3">Presiona el botón debajo para comenzar tu nueva experiencia.</string>
+    <string name="onboarding_desc_3">Comienza tu nueva experiencia.</string>
 
-    <!-- Login -->
-    <string name="username">Usuario</string>
+    <!-- Login y Registro -->
+    <string name="username">Nombre de Usuario</string>
+    <string name="email">Correo Electrónico</string>
     <string name="password">Contraseña</string>
     <string name="login">Iniciar Sesión</string>
-    <string name="login_error">Usuario o contraseña incorrectos.</string>
-    <string name="login_success">¡Bienvenido!</string>
+    <string name="register">Registrarse</string>
+    <string name="register_prompt">¿No tienes cuenta? Regístrate aquí</string>
+    <string name="login_error">Credenciales incorrectas.</string>
+    <string name="login_success">¡Bienvenido de nuevo!</string>
+    <string name="register_success">Usuario registrado. Inicia sesión.</string>
+    <string name="register_error">El usuario ya existe.</string>
+    <string name="empty_fields">Por favor llena todos los campos.</string>
 
     <!-- Dashboard -->
-    <string name="user_profile_picture">Foto de perfil del usuario</string>
+    <string name="user_profile_picture">Foto de perfil</string>
     <string name="created_notebooks">Cuadernos Creados</string>
     <string name="written_sheets">Hojas Escritas</string>
-    <string name="last_notebook">Último Cuaderno (Abrir PDF)</string>
-    <string name="new_notebook">Nuevo Cuaderno (App de Notas)</string>
+    <string name="last_notebook">Último Cuaderno (PDF)</string>
+    <string name="new_notebook">Nuevo Cuaderno (Nota)</string>
     <string name="logout">Cerrar Sesión</string>
+    <string name="alarm_settings">Configurar Alarma</string>
+    <string name="set_alarm">Programar Alarma Diaria</string>
+    <string name="alarm_set_format">Alarma: %02d:%02d</string>
+    <string name="alarm_cancelled">Alarma cancelada</string>
+    <string name="alarm_scheduled">Alarma programada para %02d:%02d</string>
 
-    <!-- Permisos y Acciones -->
+    <!-- Permisos -->
     <string name="permission_denied">Permiso denegado</string>
-    <string name="permission_camera_denied">Permiso de cámara denegado. No se puede tomar la foto.</string>
-    <string name="permission_storage_denied">Permiso de almacenamiento denegado. No se pueden buscar archivos.</string>
-    <string name="no_note_app">No se encontró una aplicación de notas.</string>
-    <string name="no_camera_app">No se encontró una aplicación de cámara.</string>
-    <string name="no_pdf_picker">No se puede abrir el selector de archivos.</string>
+    <string name="permission_camera_denied">Permiso de cámara denegado.</string>
+    <string name="permission_storage_rationale_title">Permiso Necesario</string>
+    <string name="permission_storage_rationale_msg">Necesitamos acceso al almacenamiento para buscar tus cuadernos. ¿Deseas intentarlo de nuevo?</string>
+    <string name="cancel">Cancelar</string>
+    <string name="accept">Aceptar</string>
+    <string name="no_camera_app">No se encontró app de cámara.</string>
+    <string name="no_pdf_picker">No se puede abrir el selector.</string>
+    <string name="no_note_app">No se encontró app de notas.</string>
+    <string name="notification_channel_name">Recordatorios de Estudio</string>
+    <string name="notification_title">DigiBook</string>
+    <string name="notification_message">¡Es hora de revisar tus notas!</string>
 </resources>
-

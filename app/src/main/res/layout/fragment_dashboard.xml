@@ -39,7 +39,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/imageUserProfile"
-            tools:text="admin" />
+            tools:text="Usuario" />
 
         <androidx.gridlayout.widget.GridLayout
             android:id="@+id/gridLayoutStats"
@@ -136,6 +136,38 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/buttonLastNotebook" />
+
+        <!-- Alarma -->
+        <TextView
+            android:id="@+id/textAlarmTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/alarm_settings"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/buttonNewNotebook" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonSetAlarm"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/set_alarm"
+            app:icon="@android:drawable/ic_lock_idle_alarm"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textAlarmTitle" />
+
+        <TextView
+            android:id="@+id/textAlarmStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="Sin alarma activa"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            app:layout_constraintTop_toBottomOf="@id/buttonSetAlarm" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

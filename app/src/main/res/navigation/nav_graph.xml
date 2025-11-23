@@ -5,7 +5,6 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/onboarding1Fragment">
 
-    <!-- Onboarding: Slide 1 -->
     <fragment
         android:id="@+id/onboarding1Fragment"
         android:name="com.example.digibook_examen1_1198109.onboarding1Fragment"
@@ -21,7 +20,6 @@
             app:popUpToInclusive="true" />
     </fragment>
 
-    <!-- Onboarding: Slide 2 -->
     <fragment
         android:id="@+id/onboarding2Fragment"
         android:name="com.example.digibook_examen1_1198109.onboarding2Fragment"
@@ -40,7 +38,6 @@
             app:popUpToInclusive="true" />
     </fragment>
 
-    <!-- Onboarding: Slide 3 -->
     <fragment
         android:id="@+id/onboarding3Fragment"
         android:name="com.example.digibook_examen1_1198109.onboarding3Fragment"
@@ -56,7 +53,7 @@
             app:destination="@id/onboarding2Fragment" />
     </fragment>
 
-    <!-- Pantalla de Login -->
+    <!-- Login Fragment -->
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.example.digibook_examen1_1198109.loginFragment"
@@ -67,9 +64,26 @@
             app:destination="@id/dashboardFragment"
             app:popUpTo="@id/nav_graph"
             app:popUpToInclusive="true" />
+        <!-- Acción para ir al Registro -->
+        <action
+            android:id="@+id/action_loginFragment_to_registerFragment"
+            app:destination="@id/registerFragment" />
     </fragment>
 
-    <!-- Pantalla de Dashboard -->
+    <!-- Register Fragment -->
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.example.digibook_examen1_1198109.RegisterFragment"
+        android:label="fragment_register"
+        tools:layout="@layout/fragment_register">
+        <action
+            android:id="@+id/action_registerFragment_to_loginFragment"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- Dashboard Fragment -->
     <fragment
         android:id="@+id/dashboardFragment"
         android:name="com.example.digibook_examen1_1198109.dashboardFragment"
