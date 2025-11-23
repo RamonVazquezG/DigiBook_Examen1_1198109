@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "700718653948",
+    "project_id": "digibook-proyecto",
+    "storage_bucket": "digibook-proyecto.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:700718653948:android:f3d7427b7be1ba10b45279",
+        "android_client_info": {
+          "package_name": "com.example.digibook_examen1_1198109"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjVcLjgC2lge56LSYq4J7N3gZmy5abcIQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

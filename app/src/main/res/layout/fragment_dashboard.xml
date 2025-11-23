@@ -2,6 +2,7 @@
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/dashboardScrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
@@ -12,6 +13,7 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
+        <!-- Perfil existente -->
         <ImageView
             android:id="@+id/imageUserProfile"
             android:layout_width="120dp"
@@ -41,15 +43,59 @@
             app:layout_constraintTop_toBottomOf="@id/imageUserProfile"
             tools:text="Usuario" />
 
+        <!--  Sección de API -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardInspiration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="#E8F5E9"
+            app:layout_constraintTop_toBottomOf="@id/textUsername">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="✨ Inspiración Diaria"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:textColor="#2E7D32"/>
+
+                <TextView
+                    android:id="@+id/textApiStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Toca para ver una frase motivacional"
+                    android:textSize="14sp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonOpenQuote"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Ver Cita"
+                    android:backgroundTint="#43A047"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Estadísticas -->
         <androidx.gridlayout.widget.GridLayout
             android:id="@+id/gridLayoutStats"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="24dp"
             app:columnCount="2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textUsername"
+            app:layout_constraintTop_toBottomOf="@id/cardInspiration"
             app:useDefaultMargins="true">
 
             <com.google.android.material.card.MaterialCardView
@@ -59,26 +105,9 @@
                 app:layout_columnWeight="1"
                 app:layout_gravity="fill"
                 app:contentPadding="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="12"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="@string/created_notebooks"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption" />
+                <LinearLayout android:orientation="vertical" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <TextView android:text="12" android:textStyle="bold" android:textSize="24sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    <TextView android:text="@string/created_notebooks" android:textSize="12sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -89,37 +118,20 @@
                 app:layout_columnWeight="1"
                 app:layout_gravity="fill"
                 app:contentPadding="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="150"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="@string/written_sheets"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption" />
+                <LinearLayout android:orientation="vertical" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <TextView android:text="150" android:textStyle="bold" android:textSize="24sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    <TextView android:text="@string/written_sheets" android:textSize="12sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
-
         </androidx.gridlayout.widget.GridLayout>
 
+        <!-- Botones -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonLastNotebook"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="60dp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="16dp"
             android:text="@string/last_notebook"
             app:icon="@android:drawable/ic_menu_recent_history"
             app:layout_constraintEnd_toEndOf="parent"
@@ -166,9 +178,7 @@
             android:layout_marginTop="8dp"
             android:gravity="center"
             android:text="Sin alarma activa"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
             app:layout_constraintTop_toBottomOf="@id/buttonSetAlarm" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </androidx.core.widget.NestedScrollView>

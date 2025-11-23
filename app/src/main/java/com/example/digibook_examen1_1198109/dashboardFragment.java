@@ -44,6 +44,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
 
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+
 public class dashboardFragment extends Fragment {
 
     private FragmentDashboardBinding binding;
@@ -53,6 +56,7 @@ public class dashboardFragment extends Fragment {
     private ActivityResultLauncher<String> requestNotificationPermissionLauncher;
     private ActivityResultLauncher<Intent> pdfPickerLauncher;
     private UserManager userManager;
+    private NetworkReceiver networkReceiver;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -224,6 +228,11 @@ public class dashboardFragment extends Fragment {
 
         // Configuración de alarma
         binding.buttonSetAlarm.setOnClickListener(v -> showTimePickerDialog());
+
+        // Listener para Cita
+        binding.buttonOpenQuote.setOnClickListener(v -> {
+            Navigation.findNavController(v).navigate(R.id.action_dashboardFragment_to_quoteFragment);
+        });
     }
 
     // Muestra un diálogo explicando por qué se necesita el permiso de almacenamiento
@@ -268,6 +277,7 @@ public class dashboardFragment extends Fragment {
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
 
+        // Crear y mostrar el TimePickerDialog
         TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
                 (view, hourOfDay, minute1) -> setAlarm(hourOfDay, minute1),
                 hour, minute, true);
@@ -389,4 +399,40 @@ public class dashboardFragment extends Fragment {
         }
         binding = null;
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Registrar BroadcastReceiver dinámicamente para cambios en tiempo real
+        networkReceiver = new NetworkReceiver(binding.getRoot(), isConnected -> {
+            if (binding != null) {
+                if (isConnected) {
+                    binding.textApiStatus.setText("Toca para ver una frase motivacional");
+                    binding.buttonOpenQuote.setEnabled(true);
+                    binding.buttonOpenQuote.setText("Ver Cita");
+                } else {
+                    binding.textApiStatus.setText("Sin conexión para citas");
+                    binding.buttonOpenQuote.setEnabled(false);
+                    binding.buttonOpenQuote.setText("Offline");
+                }
+            }
+        });
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        requireActivity().registerReceiver(networkReceiver, filter);
+    }
+
+    // Desregistrar el BroadcastReceiver al pausar el fragmento
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (networkReceiver != null) {
+            try {
+                requireActivity().unregisterReceiver(networkReceiver);
+            } catch (IllegalArgumentException e) {
+                // Ya estaba desregistrado
+            }
+        }
+    }
+
+
 }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">DigiBook_Examen1_1198109</string>
+    <string name="app_name">DigiBook_Proyecto</string>
 
     <!-- Onboarding -->
     <string name="skip">Omitir</string>
@@ -53,4 +53,6 @@
     <string name="notification_channel_name">Recordatorios de Estudio</string>
     <string name="notification_title">DigiBook</string>
     <string name="notification_message">¡Es hora de revisar tus notas!</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

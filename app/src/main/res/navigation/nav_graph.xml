@@ -83,7 +83,13 @@
             app:popUpToInclusive="true" />
     </fragment>
 
-    <!-- Dashboard Fragment -->
+    <fragment
+        android:id="@+id/quoteFragment"
+        android:name="com.example.digibook_examen1_1198109.QuoteFragment"
+        android:label="fragment_quote"
+        tools:layout="@layout/fragment_quote" />
+
+    <!-- Actualiza dashboardFragment la acción -->
     <fragment
         android:id="@+id/dashboardFragment"
         android:name="com.example.digibook_examen1_1198109.dashboardFragment"
@@ -98,5 +104,9 @@
             app:destination="@id/loginFragment"
             app:popUpTo="@id/nav_graph"
             app:popUpToInclusive="true" />
+        <!-- ACCIÓN -->
+        <action
+            android:id="@+id/action_dashboardFragment_to_quoteFragment"
+            app:destination="@id/quoteFragment" />
     </fragment>
 </navigation>
