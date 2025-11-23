@@ -1,25 +1,43 @@
 package com.example.digibook_examen1_1198109;
 
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.slider.Slider;
-
 
 public class CreateNoteFragment extends Fragment {
 
     private DrawingView drawingView;
-    private FrameLayout drawingContainer;
-    private EditText lastFocusedEditText; // Para saber a qué texto cambiarle el tamaño
+    private FrameLayout textContainer;
+    private LinearLayout brushControls, textControls, colorPalette;
+    private MaterialButton btnModeDraw, btnModeText, btnAddText;
+
+    private EditText activeEditText; // La caja de texto seleccionada
+    private boolean isDrawMode = true;
+    private int currentColor = Color.BLACK;
+
+    private final String[] colors = {
+            "#000000", "#545454", "#9E9E9E", "#F44336",
+            "#E91E63", "#9C27B0", "#673AB7", "#3F51B5",
+            "#2196F3", "#03A9F4", "#00BCD4", "#009688",
+            "#4CAF50", "#8BC34A", "#CDDC39", "#FFEB3B",
+            "#FFC107", "#FF9800", "#FF5722", "#795548"
+    };
 
     @Nullable
     @Override
@@ -31,79 +49,181 @@ public class CreateNoteFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Referencias UI
         drawingView = view.findViewById(R.id.drawingView);
-        drawingContainer = view.findViewById(R.id.drawingContainer);
-        Slider sliderSize = view.findViewById(R.id.sliderSize);
+        textContainer = view.findViewById(R.id.textContainer);
+        brushControls = view.findViewById(R.id.brushControls);
+        textControls = view.findViewById(R.id.textControls);
+        colorPalette = view.findViewById(R.id.colorPalette);
 
-        // Configurar botones de colores
-        view.findViewById(R.id.btnBlack).setOnClickListener(v -> drawingView.setColor("#000000"));
-        view.findViewById(R.id.btnRed).setOnClickListener(v -> drawingView.setColor("#FF0000"));
-        view.findViewById(R.id.btnBlue).setOnClickListener(v -> drawingView.setColor("#0000FF"));
+        btnModeDraw = view.findViewById(R.id.btnModeDraw);
+        btnModeText = view.findViewById(R.id.btnModeText);
+        btnAddText = view.findViewById(R.id.btnAddText);
 
-        // Configurar Slider de tamaño
-        sliderSize.addOnChangeListener((slider, value, fromUser) -> {
-            // Si hay una caja de texto con foco, cambiamos el tamaño de su letra
-            if (lastFocusedEditText != null && lastFocusedEditText.hasFocus()) {
-                lastFocusedEditText.setTextSize(TypedValue.COMPLEX_UNIT_SP, value);
-            } else {
-                // Si no, cambiamos el tamaño del pincel
-                drawingView.setBrushSize((int) value);
+        Slider sliderBrush = view.findViewById(R.id.sliderBrushSize);
+        Slider sliderText = view.findViewById(R.id.sliderTextSize);
+
+        // 1. Configurar Modos
+        btnModeDraw.setOnClickListener(v -> setMode(true));
+        btnModeText.setOnClickListener(v -> setMode(false));
+        btnAddText.setOnClickListener(v -> addDraggableText());
+
+        // 2. Configurar Slider Pincel
+        sliderBrush.addOnChangeListener((slider, value, fromUser) -> {
+            drawingView.setBrushSize((int) value);
+        });
+
+        // 3. Configurar Slider Texto
+        sliderText.addOnChangeListener((slider, value, fromUser) -> {
+            if (activeEditText != null) {
+                activeEditText.setTextSize(TypedValue.COMPLEX_UNIT_SP, value);
             }
         });
 
-        // Botón para agregar caja de texto
-        view.findViewById(R.id.btnAddText).setOnClickListener(v -> addTextBox());
+        // 4. Crear Paleta de Colores
+        createColorButtons();
+
+        // Iniciar en modo dibujo
+        setMode(true);
     }
 
-    private void addTextBox() {
-        EditText editText = new EditText(requireContext());
-        editText.setHint("Escribe aquí...");
-        editText.setBackgroundColor(Color.TRANSPARENT); // Fondo transparente
-        editText.setTextSize(20);
+    private void setMode(boolean draw) {
+        isDrawMode = draw;
+        drawingView.setDrawingEnabled(draw);
 
-        // LayoutParams para posicionarlo inicialmente en el centro
+        if (draw) {
+            // UI Modo Dibujo
+            brushControls.setVisibility(View.VISIBLE);
+            textControls.setVisibility(View.GONE);
+            btnAddText.setVisibility(View.GONE);
+
+            // Estilos botones
+            updateButtonStyle(btnModeDraw, true);
+            updateButtonStyle(btnModeText, false);
+
+            // Quitar foco del texto para evitar teclado
+            if (activeEditText != null) activeEditText.clearFocus();
+
+        } else {
+            // UI Modo Texto
+            brushControls.setVisibility(View.GONE);
+            textControls.setVisibility(View.VISIBLE);
+            btnAddText.setVisibility(View.VISIBLE);
+
+            updateButtonStyle(btnModeDraw, false);
+            updateButtonStyle(btnModeText, true);
+        }
+    }
+
+    private void updateButtonStyle(MaterialButton btn, boolean active) {
+        if (active) {
+            btn.setStrokeWidth(4);
+            btn.setStrokeColor(android.content.res.ColorStateList.valueOf(getResources().getColor(com.google.android.material.R.color.design_default_color_primary)));
+        } else {
+            btn.setStrokeWidth(0);
+        }
+    }
+
+    private void createColorButtons() {
+        int size = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 40, getResources().getDisplayMetrics());
+        int margin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
+
+        for (String colorHex : colors) {
+            View colorView = new View(requireContext());
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
+            params.setMargins(margin, 0, margin, 0);
+            colorView.setLayoutParams(params);
+
+            // Fondo circular de color
+            GradientDrawable shape = new GradientDrawable();
+            shape.setShape(GradientDrawable.OVAL);
+            shape.setColor(Color.parseColor(colorHex));
+            shape.setStroke(2, Color.LTGRAY);
+            colorView.setBackground(shape);
+
+            colorView.setOnClickListener(v -> {
+                currentColor = Color.parseColor(colorHex);
+                if (isDrawMode) {
+                    drawingView.setColor(colorHex);
+                } else if (activeEditText != null) {
+                    activeEditText.setTextColor(currentColor);
+                }
+            });
+
+            colorPalette.addView(colorView);
+        }
+    }
+
+    private void addDraggableText() {
+        EditText et = new EditText(requireContext());
+        et.setText("Texto");
+        et.setTextColor(currentColor);
+        et.setTextSize(24); // Tamaño inicial
+        et.setBackgroundColor(Color.TRANSPARENT);
+        et.setPadding(16, 16, 16, 16);
+
+        // Posición inicial en el centro
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
         );
-        params.leftMargin = 100; // Posición inicial X
-        params.topMargin = 100;  // Posición inicial Y
-        editText.setLayoutParams(params);
+        params.gravity = Gravity.CENTER;
+        et.setLayoutParams(params);
 
-        // Listener para guardar referencia cuando se toca
-        editText.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) {
-                lastFocusedEditText = (EditText) v;
-            }
-        });
-
-        // Lógica simple para arrastrar (Drag and Drop básico)
-        editText.setOnTouchListener(new View.OnTouchListener() {
+        // Lógica de Arrastre (Touch Listener)
+        et.setOnTouchListener(new View.OnTouchListener() {
             float dX, dY;
+            long startClickTime;
+
             @Override
             public boolean onTouch(View view, MotionEvent event) {
-                // Permitir editar si es un click simple, arrastrar si es movimiento
+                // Solo permitir mover si estamos en modo Texto
+                if (isDrawMode) return false;
+
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         dX = view.getX() - event.getRawX();
                         dY = view.getY() - event.getRawY();
-                        lastFocusedEditText = (EditText) view; // Actualizar referencia
-                        view.requestFocus();
-                        break;
+                        startClickTime = System.currentTimeMillis();
+
+                        // Seleccionar esta caja
+                        setActiveText((EditText) view);
+                        return true;
+
                     case MotionEvent.ACTION_MOVE:
                         view.animate()
                                 .x(event.getRawX() + dX)
                                 .y(event.getRawY() + dY)
                                 .setDuration(0)
                                 .start();
-                        break;
+                        return true;
+
+                    case MotionEvent.ACTION_UP:
+                        // Si fue un click rápido, permitir editar
+                        if (System.currentTimeMillis() - startClickTime < 200) {
+                            view.performClick();
+                            view.requestFocus();
+                            // Mostrar teclado aquí si es necesario
+                            return false;
+                        }
+                        return true;
                 }
-                return false; // Retornar false permite que el evento de click/foco siga funcionando
+                return false;
             }
         });
 
-        drawingContainer.addView(editText);
-        editText.requestFocus(); // Dar foco inmediato
-        lastFocusedEditText = editText;
+        // Detectar foco para actualizar controles
+        et.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) setActiveText((EditText) v);
+        });
+
+        textContainer.addView(et);
+        setActiveText(et);
+    }
+
+    private void setActiveText(EditText et) {
+        this.activeEditText = et;
+        // Aplicar color seleccionado actual al nuevo texto
+        et.setTextColor(currentColor);
     }
 }

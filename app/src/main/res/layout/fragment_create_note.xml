@@ -5,84 +5,136 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CreateNoteFragment">
+    android:background="#F0F0F0">
 
+    <!-- Área de Trabajo (Hoja Blanca) -->
     <FrameLayout
-        android:id="@+id/drawingContainer"
+        android:id="@+id/workArea"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="#FFFFFF"
-        app:layout_constraintBottom_toTopOf="@+id/toolsPanel"
+        android:elevation="4dp"
+        android:layout_margin="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/controlsContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <!-- Capa de Dibujo -->
         <com.example.digibook_examen1_1198109.DrawingView
             android:id="@+id/drawingView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
+        <!-- Capa de Texto (Transparente para clicks) -->
+        <FrameLayout
+            android:id="@+id/textContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
     </FrameLayout>
 
+    <!-- Panel de Controles Inferior -->
     <LinearLayout
-        android:id="@+id/toolsPanel"
+        android:id="@+id/controlsContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="8dp"
-        android:background="#EEEEEE"
+        android:background="#FFFFFF"
+        android:elevation="16dp"
+        android:padding="12dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
+        <!-- 1. Botones de Modo -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center">
+            android:gravity="center_horizontal"
+            android:layout_marginBottom="8dp">
 
-            <Button
-                android:id="@+id/btnBlack"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:backgroundTint="#000000"
-                android:layout_margin="4dp"/>
-            <Button
-                android:id="@+id/btnRed"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:backgroundTint="#FF0000"
-                android:layout_margin="4dp"/>
-            <Button
-                android:id="@+id/btnBlue"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:backgroundTint="#0000FF"
-                android:layout_margin="4dp"/>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnModeDraw"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Lápiz"
+                android:layout_marginEnd="16dp"
+                app:icon="@android:drawable/ic_menu_edit"/>
 
-            <Space android:layout_width="16dp" android:layout_height="wrap_content"/>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnModeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Texto"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                app:icon="@android:drawable/ic_menu_sort_by_size"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAddText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Texto +"/>
+                android:text="+ Nueva Caja"
+                android:visibility="gone"
+                android:layout_marginStart="16dp"
+                style="@style/Widget.MaterialComponents.Button.TextButton"/>
         </LinearLayout>
 
-        <LinearLayout
+        <!-- 2. Sliders de Tamaño (SEPARADOS) -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Slider para Lápiz -->
+            <LinearLayout
+                android:id="@+id/brushControls"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+                <TextView android:text="Grosor:" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/sliderBrushSize"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:valueFrom="1"
+                    android:valueTo="50"
+                    android:value="10"/>
+            </LinearLayout>
+
+            <!-- Slider para Texto (oculto inicialmente) -->
+            <LinearLayout
+                android:id="@+id/textControls"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:visibility="gone">
+                <TextView android:text="Letra:" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/sliderTextSize"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:valueFrom="12"
+                    android:valueTo="72"
+                    android:value="24"/>
+            </LinearLayout>
+        </FrameLayout>
+
+        <!-- 3. Paleta de Colores -->
+        <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView android:text="Tamaño:" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-            <com.google.android.material.slider.Slider
-                android:id="@+id/sliderSize"
-                android:layout_width="0dp"
-                android:layout_weight="1"
+            android:scrollbars="none"
+            android:layout_marginTop="4dp">
+            <LinearLayout
+                android:id="@+id/colorPalette"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:valueFrom="5"
-                android:valueTo="50"
-                android:value="10"/>
-        </LinearLayout>
-    </LinearLayout>
+                android:orientation="horizontal"
+                android:paddingVertical="4dp">
+                <!-- Se llena por código -->
+            </LinearLayout>
+        </HorizontalScrollView>
 
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

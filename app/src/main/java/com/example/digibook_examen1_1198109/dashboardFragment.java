@@ -67,19 +67,15 @@ public class dashboardFragment extends Fragment {
             }
         });
 
-        // Modificado para guardar la imagen en almacenamiento interno
         cameraLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == AppCompatActivity.RESULT_OK && result.getData() != null) {
                 Bundle extras = result.getData().getExtras();
                 if (extras != null) {
                     Bitmap imageBitmap = (Bitmap) extras.get("data");
                     if (imageBitmap != null) {
-                        // Guardar imagen en almacenamiento interno y obtener ruta
                         String path = saveImageToInternalStorage(imageBitmap);
                         if (path != null) {
-                            // Guardar ruta en SharedPreferences para el usuario actual
                             userManager.saveUserPhoto(path);
-                            // Mostrar imagen
                             if (binding != null) binding.imageUserProfile.setImageBitmap(imageBitmap);
                         }
                     }
@@ -116,12 +112,10 @@ public class dashboardFragment extends Fragment {
         return binding.getRoot();
     }
 
-    // Configura la UI y carga datos del usuario
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Configurar el nombre de usuario en la UI y la ActionBar
         if (getArguments() != null) {
             String username = getArguments().getString("USERNAME_EXTRA", "Usuario");
             if (binding != null) binding.textUsername.setText(username);
@@ -130,17 +124,13 @@ public class dashboardFragment extends Fragment {
             }
         }
 
-        // Cargar los datos persistentes del usuario
         loadUserData();
-
         setupClickListeners();
         setupMenu();
         checkNotificationPermission();
     }
 
-    // Carga la foto y la configuración de alarma del usuario actual.
     private void loadUserData() {
-        // 1. Cargar Foto
         String photoPath = userManager.getUserPhoto();
         if (photoPath != null && !photoPath.isEmpty()) {
             File imgFile = new File(photoPath);
@@ -149,11 +139,9 @@ public class dashboardFragment extends Fragment {
                 binding.imageUserProfile.setImageBitmap(myBitmap);
             }
         } else {
-            // Resetear a icono por defecto si no hay foto
             binding.imageUserProfile.setImageResource(android.R.drawable.ic_menu_camera);
         }
 
-        // 2. Cargar Alarma
         String alarmTime = userManager.getUserAlarm();
         if (alarmTime != null && !alarmTime.isEmpty()) {
             binding.textAlarmStatus.setText("Alarma: " + alarmTime);
@@ -162,18 +150,11 @@ public class dashboardFragment extends Fragment {
         }
     }
 
-    // Guarda el bitmap en el almacenamiento interno de la app.
     private String saveImageToInternalStorage(Bitmap bitmapImage) {
-        // Usamos el email del usuario para crear un nombre único de archivo
         String email = userManager.getCurrentUserEmail();
-        // Sanitizamos el email para usarlo como nombre de archivo
         String fileName = "profile_" + email.replaceAll("[^a-zA-Z0-9]", "_") + ".jpg";
-
-        // Guardar en el directorio interno de la app
         File directory = requireContext().getDir("imageDir", Context.MODE_PRIVATE);
         File mypath = new File(directory, fileName);
-
-        // Escribir el bitmap en el archivo
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(mypath);
@@ -191,11 +172,9 @@ public class dashboardFragment extends Fragment {
         return null;
     }
 
-    // Configura los listeners para los botones de la UI
     private void setupClickListeners() {
         if (binding == null) return;
 
-        // Manejo de permisos de cámara y captura de foto
         binding.imageUserProfile.setOnClickListener(v -> {
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                 dispatchTakePictureIntent();
@@ -204,7 +183,6 @@ public class dashboardFragment extends Fragment {
             }
         });
 
-        // Manejo de permisos de almacenamiento según versión de Android
         binding.buttonLastNotebook.setOnClickListener(v -> {
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
                 if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
@@ -219,14 +197,14 @@ public class dashboardFragment extends Fragment {
             }
         });
 
-        // Nuevo Intent para crear nota de texto
-        binding.buttonNewNotebook.setOnClickListener(v -> dispatchNewNoteIntent());
+        // ---- ACTUALIZADO: Navegar al fragmento de notas ----
+        binding.buttonNewNotebook.setOnClickListener(v -> {
+            Navigation.findNavController(v).navigate(R.id.action_dashboard_to_createNote);
+        });
 
-        // Configuración de alarma
         binding.buttonSetAlarm.setOnClickListener(v -> showTimePickerDialog());
     }
 
-    // Muestra un diálogo explicando por qué se necesita el permiso de almacenamiento
     private void showPermissionRationaleDialog() {
         new AlertDialog.Builder(requireContext())
                 .setTitle(R.string.permission_storage_rationale_title)
@@ -238,7 +216,6 @@ public class dashboardFragment extends Fragment {
                 .show();
     }
 
-    // Muestra un diálogo indicando que el permiso fue denegado permanentemente
     private void showPermissionDeniedDialog() {
         new AlertDialog.Builder(requireContext())
                 .setTitle(R.string.permission_denied)
@@ -253,7 +230,6 @@ public class dashboardFragment extends Fragment {
                 .show();
     }
 
-    // Verifica y solicita permiso de notificaciones si es necesario
     private void checkNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -262,7 +238,6 @@ public class dashboardFragment extends Fragment {
         }
     }
 
-    // Muestra el diálogo del selector de hora para la alarma
     private void showTimePickerDialog() {
         Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -274,38 +249,26 @@ public class dashboardFragment extends Fragment {
         timePickerDialog.show();
     }
 
-    // Configura la alarma diaria a la hora seleccionada
     private void setAlarm(int hour, int minute) {
         AlarmManager alarmManager = (AlarmManager) requireContext().getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(requireContext(), AlarmReceiver.class);
-
-        // Crear PendingIntent para la alarma
         PendingIntent pendingIntent = PendingIntent.getBroadcast(requireContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        // Configurar la hora de la alarma
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, hour);
         calendar.set(Calendar.MINUTE, minute);
         calendar.set(Calendar.SECOND, 0);
 
-        // Si la hora ya pasó hoy, programar para mañana
         if (calendar.before(Calendar.getInstance())) {
             calendar.add(Calendar.DATE, 1);
         }
 
-        // Programar la alarma
         if (alarmManager != null) {
             try {
-                // Usar setExactAndAllowWhileIdle para mayor precisión si el permiso está concedido
-                // O simplemente setInexactRepeating como pide el examen básico
                 alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
                         AlarmManager.INTERVAL_DAY, pendingIntent);
-
-                // Guardar persistencia
                 String timeString = String.format("%02d:%02d", hour, minute);
                 userManager.saveUserAlarm(timeString);
-
-                // Actualizar UI
                 binding.textAlarmStatus.setText(String.format(getString(R.string.alarm_set_format), hour, minute));
                 Toast.makeText(requireContext(), getString(R.string.alarm_scheduled, hour, minute), Toast.LENGTH_SHORT).show();
             } catch (SecurityException e) {
@@ -314,7 +277,6 @@ public class dashboardFragment extends Fragment {
         }
     }
 
-    // Inicia el Intent para capturar una foto con la cámara
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         try {
@@ -324,25 +286,15 @@ public class dashboardFragment extends Fragment {
         }
     }
 
-    // Inicia el Intent para seleccionar un PDF desde el almacenamiento
     private void dispatchOpenPdfIntent() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("application/pdf");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        // Lanzar el selector de PDF
         try {
             pdfPickerLauncher.launch(Intent.createChooser(intent, "Selecciona un PDF"));
         } catch (ActivityNotFoundException e) {
             if (getContext() != null) Toast.makeText(getContext(), R.string.no_pdf_picker, Toast.LENGTH_SHORT).show();
         }
-    }
-
-    // Inicia el Intent para crear una nueva nota de texto
-    // En dashboardFragment.java
-    private void dispatchNewNoteIntent() {
-        // Navegar al nuevo fragmento de creación
-        Navigation.findNavController(requireView())
-                .navigate(R.id.action_dashboard_to_createNote);
     }
 
     private void setupMenu() {
@@ -364,12 +316,9 @@ public class dashboardFragment extends Fragment {
         }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
     }
 
-    // Maneja el cierre de sesión del usuario
     private void logout() {
         if (getView() == null) return;
-
         userManager.logout();
-
         NavController navController = Navigation.findNavController(requireView());
         NavOptions navOptions = new NavOptions.Builder()
                 .setPopUpTo(R.id.nav_graph, true)

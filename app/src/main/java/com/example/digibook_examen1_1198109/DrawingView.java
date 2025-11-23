@@ -14,10 +14,11 @@ public class DrawingView extends View {
 
     private Path drawPath;
     private Paint drawPaint, canvasPaint;
-    private int paintColor = 0xFF000000; // Negro por defecto
-    private int paintSize = 10; // Tamaño por defecto
+    private int paintColor = 0xFF000000; // Negro inicial
+    private int paintSize = 10;
     private Canvas drawCanvas;
     private Bitmap canvasBitmap;
+    private boolean isDrawingEnabled = true; // Controla si se puede dibujar
 
     public DrawingView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -36,6 +37,23 @@ public class DrawingView extends View {
         canvasPaint = new Paint(Paint.DITHER_FLAG);
     }
 
+    // Permite activar/desactivar el dibujo (útil para modo texto)
+    public void setDrawingEnabled(boolean enabled) {
+        this.isDrawingEnabled = enabled;
+    }
+
+    public void setColor(String newColor) {
+        invalidate();
+        paintColor = Color.parseColor(newColor);
+        drawPaint.setColor(paintColor);
+    }
+
+    public void setBrushSize(int newSize) {
+        invalidate();
+        paintSize = newSize;
+        drawPaint.setStrokeWidth(paintSize);
+    }
+
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
@@ -51,6 +69,9 @@ public class DrawingView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        // Si el dibujo está desactivado, no hacemos nada
+        if (!isDrawingEnabled) return false;
+
         float touchX = event.getX();
         float touchY = event.getY();
 
@@ -68,20 +89,7 @@ public class DrawingView extends View {
             default:
                 return false;
         }
-        invalidate(); // Redibujar la vista
+        invalidate();
         return true;
-    }
-
-    // Métodos para configurar el lápiz desde el Fragment
-    public void setColor(String newColor) {
-        invalidate();
-        paintColor = Color.parseColor(newColor);
-        drawPaint.setColor(paintColor);
-    }
-
-    public void setBrushSize(int newSize) {
-        invalidate();
-        paintSize = newSize;
-        drawPaint.setStrokeWidth(paintSize);
     }
 }
