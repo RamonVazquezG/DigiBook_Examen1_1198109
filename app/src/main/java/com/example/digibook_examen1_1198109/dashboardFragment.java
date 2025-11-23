@@ -338,15 +338,11 @@ public class dashboardFragment extends Fragment {
     }
 
     // Inicia el Intent para crear una nueva nota de texto
+    // En dashboardFragment.java
     private void dispatchNewNoteIntent() {
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType("text/plain");
-        // Lanzar el chooser para crear nota
-        try {
-            startActivity(Intent.createChooser(intent, "Crear nota con..."));
-        } catch (ActivityNotFoundException e) {
-            if (getContext() != null) Toast.makeText(getContext(), R.string.no_note_app, Toast.LENGTH_SHORT).show();
-        }
+        // Navegar al nuevo fragmento de creación
+        Navigation.findNavController(requireView())
+                .navigate(R.id.action_dashboard_to_createNote);
     }
 
     private void setupMenu() {

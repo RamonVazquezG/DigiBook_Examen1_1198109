@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".CreateNoteFragment">
+
+    <FrameLayout
+        android:id="@+id/drawingContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#FFFFFF"
+        app:layout_constraintBottom_toTopOf="@+id/toolsPanel"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.example.digibook_examen1_1198109.DrawingView
+            android:id="@+id/drawingView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/toolsPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:background="#EEEEEE"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/btnBlack"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:backgroundTint="#000000"
+                android:layout_margin="4dp"/>
+            <Button
+                android:id="@+id/btnRed"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:backgroundTint="#FF0000"
+                android:layout_margin="4dp"/>
+            <Button
+                android:id="@+id/btnBlue"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:backgroundTint="#0000FF"
+                android:layout_margin="4dp"/>
+
+            <Space android:layout_width="16dp" android:layout_height="wrap_content"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAddText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Texto +"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView android:text="Tamaño:" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderSize"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:valueFrom="5"
+                android:valueTo="50"
+                android:value="10"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

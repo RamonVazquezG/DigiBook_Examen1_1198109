@@ -98,5 +98,15 @@
             app:destination="@id/loginFragment"
             app:popUpTo="@id/nav_graph"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_dashboard_to_createNote"
+            app:destination="@id/createNoteFragment" />
     </fragment>
+    <!-- notas Fragment -->
+
+    <fragment
+        android:id="@+id/createNoteFragment"
+        android:name="com.example.digibook_examen1_1198109.CreateNoteFragment"
+        android:label="Nueva Nota"
+        tools:layout="@layout/fragment_create_note" />
 </navigation>
