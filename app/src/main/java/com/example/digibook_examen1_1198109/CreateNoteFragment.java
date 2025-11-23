@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.slider.Slider;
 
+
 public class CreateNoteFragment extends Fragment {
 
     private DrawingView drawingView;
