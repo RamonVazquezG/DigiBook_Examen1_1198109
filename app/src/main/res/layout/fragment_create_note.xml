@@ -7,26 +7,24 @@
     android:layout_height="match_parent"
     android:background="#F0F0F0">
 
-    <!-- Área de Trabajo (Hoja Blanca) -->
+    <!-- Contenedor escalable -->
     <FrameLayout
         android:id="@+id/workArea"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="#FFFFFF"
         android:elevation="4dp"
-        android:layout_margin="8dp"
+        android:layout_margin="16dp"
         app:layout_constraintBottom_toTopOf="@+id/controlsContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Capa de Dibujo -->
         <com.example.digibook_examen1_1198109.DrawingView
             android:id="@+id/drawingView"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <!-- Capa de Texto (Transparente para clicks) -->
         <FrameLayout
             android:id="@+id/textContainer"
             android:layout_width="match_parent"
@@ -58,8 +56,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Lápiz"
-                android:layout_marginEnd="16dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 app:icon="@android:drawable/ic_menu_edit"/>
+
+            <View android:layout_width="4dp" android:layout_height="1dp"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnModeText"
@@ -69,22 +69,43 @@
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 app:icon="@android:drawable/ic_menu_sort_by_size"/>
 
+            <View android:layout_width="4dp" android:layout_height="1dp"/>
+
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnAddText"
+                android:id="@+id/btnModePan"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="+ Nueva Caja"
-                android:visibility="gone"
-                android:layout_marginStart="16dp"
-                style="@style/Widget.MaterialComponents.Button.TextButton"/>
+                android:text="Mano"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                app:icon="@android:drawable/ic_menu_directions"/>
+
+            <View android:layout_width="4dp" android:layout_height="1dp"/>
+
+            <!-- NUEVO BOTÓN DE BORRADOR -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnModeEraser"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Goma"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                app:icon="@android:drawable/ic_menu_delete"/>
+
         </LinearLayout>
 
-        <!-- 2. Sliders de Tamaño (SEPARADOS) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+ Agregar Caja de Texto"
+            android:visibility="gone"
+            android:layout_gravity="center_horizontal"
+            style="@style/Widget.MaterialComponents.Button.TextButton"/>
+
+        <!-- 2. Sliders de Tamaño -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <!-- Slider para Lápiz -->
             <LinearLayout
                 android:id="@+id/brushControls"
                 android:layout_width="match_parent"
@@ -101,7 +122,6 @@
                     android:value="10"/>
             </LinearLayout>
 
-            <!-- Slider para Texto (oculto inicialmente) -->
             <LinearLayout
                 android:id="@+id/textControls"
                 android:layout_width="match_parent"
@@ -132,7 +152,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:paddingVertical="4dp">
-                <!-- Se llena por código -->
             </LinearLayout>
         </HorizontalScrollView>
 
