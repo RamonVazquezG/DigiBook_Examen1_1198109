@@ -22,7 +22,9 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.slider.Slider;
 
-import com.example.digibook_examen1_1198109.R;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,10 +82,8 @@ public class CreateNoteFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Inicializar repositorio
         noteRepository = new NoteRepository(requireContext());
 
-        // Obtener nombre de la nota de los argumentos
         if (getArguments() != null) {
             String nameArg = getArguments().getString("noteName");
             if (nameArg != null && !nameArg.isEmpty()) {
@@ -91,7 +91,6 @@ public class CreateNoteFragment extends Fragment {
             }
         }
 
-        // Actualizar título de la toolbar
         if (getActivity() instanceof AppCompatActivity && ((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
             ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(currentNoteName);
         }
@@ -103,30 +102,118 @@ public class CreateNoteFragment extends Fragment {
 
         setMode(MODE_DRAW);
 
-        // Cargar datos si existen
         loadNoteData();
     }
 
-    // Guardar al pausar (salir de la app o ir atrás)
     @Override
     public void onPause() {
         super.onPause();
         saveNoteData();
     }
 
+    // --- GUARDADO COMPLETO (Dibujo + Texto) ---
     private void saveNoteData() {
         if (drawingView != null) {
-            String jsonData = drawingView.serializeDrawing();
-            noteRepository.saveNote(currentNoteName, jsonData);
-            // Opcional: Toast.makeText(getContext(), "Nota guardada", Toast.LENGTH_SHORT).show();
+            try {
+                // Creamos un objeto raíz JSON
+                JSONObject root = new JSONObject();
+
+                // 1. Guardar trazos del DrawingView
+                String strokesJson = drawingView.serializeDrawing();
+                root.put("strokes", new JSONArray(strokesJson));
+
+                // 2. Guardar cajas de texto
+                JSONArray textsArray = new JSONArray();
+                for (int i = 0; i < textContainer.getChildCount(); i++) {
+                    View child = textContainer.getChildAt(i);
+                    if (child instanceof EditText) {
+                        EditText et = (EditText) child;
+                        JSONObject textObj = new JSONObject();
+                        textObj.put("content", et.getText().toString());
+                        textObj.put("x", et.getX());
+                        textObj.put("y", et.getY());
+                        textObj.put("color", et.getCurrentTextColor());
+                        // Guardamos el tamaño en píxeles reales
+                        textObj.put("sizePx", et.getTextSize());
+                        textsArray.put(textObj);
+                    }
+                }
+                root.put("texts", textsArray);
+
+                // Guardamos todo el JSON como string
+                noteRepository.saveNote(currentNoteName, root.toString());
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 
+    // --- CARGA COMPLETA (Dibujo + Texto) ---
     private void loadNoteData() {
         String jsonData = noteRepository.loadNote(currentNoteName);
         if (jsonData != null && !jsonData.isEmpty()) {
-            drawingView.deserializeDrawing(jsonData);
+            try {
+                // Verificamos si es el formato antiguo (que empezaba con corchete [ de array)
+                if (jsonData.trim().startsWith("[")) {
+                    // Es una nota antigua solo con trazos
+                    drawingView.deserializeDrawing(jsonData);
+                } else {
+                    // Es el formato nuevo con objeto { "strokes": [], "texts": [] }
+                    JSONObject root = new JSONObject(jsonData);
+
+                    // Cargar trazos
+                    if (root.has("strokes")) {
+                        drawingView.deserializeDrawing(root.getJSONArray("strokes").toString());
+                    }
+
+                    // Cargar textos
+                    if (root.has("texts")) {
+                        textContainer.removeAllViews(); // Limpiar textos existentes antes de cargar
+                        JSONArray textsArray = root.getJSONArray("texts");
+                        for (int i = 0; i < textsArray.length(); i++) {
+                            JSONObject textObj = textsArray.getJSONObject(i);
+                            recreateTextView(textObj);
+                        }
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
+    }
+
+    // Helper para recrear un TextView desde JSON
+    private void recreateTextView(JSONObject json) throws JSONException {
+        String content = json.getString("content");
+        float x = (float) json.getDouble("x");
+        float y = (float) json.getDouble("y");
+        int color = json.getInt("color");
+        float sizePx = (float) json.getDouble("sizePx");
+
+        EditText et = new EditText(requireContext());
+        et.setText(content);
+        et.setTextColor(color);
+        // Importante: COMPLEX_UNIT_PX para restaurar el tamaño exacto
+        et.setTextSize(TypedValue.COMPLEX_UNIT_PX, sizePx);
+        et.setBackgroundResource(0);
+        et.setPadding(16, 16, 16, 16);
+
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        et.setLayoutParams(params);
+
+        // Restaurar posición
+        et.setX(x);
+        et.setY(y);
+
+        // Reasignar lógica de toque
+        setupTextTouchListener(et);
+        setupFocusListener(et);
+
+        textContainer.addView(et);
     }
 
     private void initViews(View view) {
@@ -300,21 +387,8 @@ public class CreateNoteFragment extends Fragment {
         }
     }
 
-    private void addDraggableText() {
-        EditText et = new EditText(requireContext());
-        et.setText("Texto");
-        et.setTextColor(currentColor);
-        et.setTextSize(24);
-        et.setBackgroundResource(0);
-        et.setPadding(16, 16, 16, 16);
-
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-        params.gravity = Gravity.CENTER;
-        et.setLayoutParams(params);
-
+    // Método extraído para configurar el listener de toque en cualquier EditText (nuevo o cargado)
+    private void setupTextTouchListener(EditText et) {
         et.setOnTouchListener((view, event) -> {
             if (currentMode == MODE_ERASER) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -356,7 +430,9 @@ public class CreateNoteFragment extends Fragment {
             }
             return false;
         });
+    }
 
+    private void setupFocusListener(EditText et) {
         et.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus && currentMode == MODE_TEXT) {
                 setActiveText((EditText) v);
@@ -364,6 +440,25 @@ public class CreateNoteFragment extends Fragment {
                 v.setBackgroundResource(0);
             }
         });
+    }
+
+    private void addDraggableText() {
+        EditText et = new EditText(requireContext());
+        et.setText("Texto");
+        et.setTextColor(currentColor);
+        et.setTextSize(24);
+        et.setBackgroundResource(0);
+        et.setPadding(16, 16, 16, 16);
+
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        params.gravity = Gravity.CENTER;
+        et.setLayoutParams(params);
+
+        setupTextTouchListener(et);
+        setupFocusListener(et);
 
         textContainer.addView(et);
         setActiveText(et);
