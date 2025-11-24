@@ -108,5 +108,18 @@
         <action
             android:id="@+id/action_dashboardFragment_to_quoteFragment"
             app:destination="@id/quoteFragment" />
+
+        <!-- Nueva acción añadida aquí -->
+        <action
+            android:id="@+id/action_dashboard_to_createNote"
+            app:destination="@id/createNoteFragment" />
     </fragment>
+
+    <!-- Nuevo Fragmento añadido aquí -->
+    <fragment
+        android:id="@+id/createNoteFragment"
+        android:name="com.example.digibook_examen1_1198109.CreateNoteFragment"
+        android:label="Nueva Nota"
+        tools:layout="@layout/fragment_create_note" />
+
 </navigation>
