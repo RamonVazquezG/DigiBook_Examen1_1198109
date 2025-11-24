@@ -64,7 +64,6 @@
             app:destination="@id/dashboardFragment"
             app:popUpTo="@id/nav_graph"
             app:popUpToInclusive="true" />
-        <!-- Acción para ir al Registro -->
         <action
             android:id="@+id/action_loginFragment_to_registerFragment"
             app:destination="@id/registerFragment" />
@@ -89,7 +88,6 @@
         android:label="fragment_quote"
         tools:layout="@layout/fragment_quote" />
 
-    <!-- Actualiza dashboardFragment la acción -->
     <fragment
         android:id="@+id/dashboardFragment"
         android:name="com.example.digibook_examen1_1198109.dashboardFragment"
@@ -104,22 +102,25 @@
             app:destination="@id/loginFragment"
             app:popUpTo="@id/nav_graph"
             app:popUpToInclusive="true" />
-        <!-- ACCIÓN -->
         <action
             android:id="@+id/action_dashboardFragment_to_quoteFragment"
             app:destination="@id/quoteFragment" />
 
-        <!-- Nueva acción añadida aquí -->
+        <!-- Acción actualizada con argumento -->
         <action
             android:id="@+id/action_dashboard_to_createNote"
             app:destination="@id/createNoteFragment" />
     </fragment>
 
-    <!-- Nuevo Fragmento añadido aquí -->
     <fragment
         android:id="@+id/createNoteFragment"
         android:name="com.example.digibook_examen1_1198109.CreateNoteFragment"
         android:label="Nueva Nota"
-        tools:layout="@layout/fragment_create_note" />
+        tools:layout="@layout/fragment_create_note">
+        <!-- Nuevo argumento para recibir el nombre -->
+        <argument
+            android:name="noteName"
+            app:argType="string" />
+    </fragment>
 
 </navigation>

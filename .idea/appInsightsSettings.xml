@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="AppInsightsSettings">
+    <option name="selectedTabId" value="Firebase Crashlytics" />
     <option name="tabSettings">
       <map>
         <entry key="Firebase Crashlytics">
@@ -8,10 +9,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.digibook_examen1_1198109" />
+                  <option name="mobileSdkAppId" value="1:700718653948:android:f3d7427b7be1ba10b45279" />
+                  <option name="projectId" value="digibook-proyecto" />
+                  <option name="projectNumber" value="700718653948" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
@@ -22,6 +23,5 @@
         </entry>
       </map>
     </option>
-    <option name="selectedTabId" value="Firebase Crashlytics" />
   </component>
 </project>

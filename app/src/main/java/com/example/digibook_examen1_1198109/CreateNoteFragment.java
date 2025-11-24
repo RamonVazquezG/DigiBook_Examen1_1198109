@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.slider.Slider;
@@ -25,9 +26,7 @@ import com.example.digibook_examen1_1198109.R;
 
 import java.util.ArrayList;
 import java.util.List;
-// Merge
 
-// Fragmento para crear notas con dibujo y texto
 public class CreateNoteFragment extends Fragment {
 
     private DrawingView drawingView;
@@ -38,30 +37,30 @@ public class CreateNoteFragment extends Fragment {
 
     private EditText activeEditText;
 
-    // Modos de operación
+    // Variables para el guardado
+    private NoteRepository noteRepository;
+    private String currentNoteName = "NotaSinTitulo";
+
     private static final int MODE_DRAW = 0;
     private static final int MODE_TEXT = 1;
-    private static final int MODE_PAN = 2;   // Mano (Mover items o la hoja)
-    private static final int MODE_ERASER = 3; // Borrador
+    private static final int MODE_PAN = 2;
+    private static final int MODE_ERASER = 3;
     private int currentMode = MODE_DRAW;
 
     private int currentColor = Color.BLACK;
     private List<View> colorViews = new ArrayList<>();
 
-    // Zoom y Navegación Global
     private ScaleGestureDetector scaleGestureDetector;
     private float scaleFactor = 1.0f;
     private static final float MIN_ZOOM = 0.5f;
     private static final float MAX_ZOOM = 5.0f;
 
-    // Variables para lógica de toque (Pan/Drag)
     private float lastTouchX, lastTouchY;
     private float globalPosX = 0f, globalPosY = 0f;
     private int activePointerId = MotionEvent.INVALID_POINTER_ID;
 
-    // Objeto que se está arrastrando actualmente (Trazo de dibujo)
     private DrawingView.Stroke draggingStroke = null;
-    private boolean isDraggingItem = false; // True si estamos moviendo un item (texto o trazo), False si movemos la hoja
+    private boolean isDraggingItem = false;
 
     private final String[] colors = {
             "#000000", "#545454", "#9E9E9E", "#F44336",
@@ -81,12 +80,53 @@ public class CreateNoteFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Inicializar repositorio
+        noteRepository = new NoteRepository(requireContext());
+
+        // Obtener nombre de la nota de los argumentos
+        if (getArguments() != null) {
+            String nameArg = getArguments().getString("noteName");
+            if (nameArg != null && !nameArg.isEmpty()) {
+                currentNoteName = nameArg;
+            }
+        }
+
+        // Actualizar título de la toolbar
+        if (getActivity() instanceof AppCompatActivity && ((AppCompatActivity) getActivity()).getSupportActionBar() != null) {
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(currentNoteName);
+        }
+
         initViews(view);
         setupTouchLogic();
         setupControls();
         createColorButtons();
 
         setMode(MODE_DRAW);
+
+        // Cargar datos si existen
+        loadNoteData();
+    }
+
+    // Guardar al pausar (salir de la app o ir atrás)
+    @Override
+    public void onPause() {
+        super.onPause();
+        saveNoteData();
+    }
+
+    private void saveNoteData() {
+        if (drawingView != null) {
+            String jsonData = drawingView.serializeDrawing();
+            noteRepository.saveNote(currentNoteName, jsonData);
+            // Opcional: Toast.makeText(getContext(), "Nota guardada", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void loadNoteData() {
+        String jsonData = noteRepository.loadNote(currentNoteName);
+        if (jsonData != null && !jsonData.isEmpty()) {
+            drawingView.deserializeDrawing(jsonData);
+        }
     }
 
     private void initViews(View view) {
@@ -101,22 +141,18 @@ public class CreateNoteFragment extends Fragment {
         btnModeDraw = view.findViewById(R.id.btnModeDraw);
         btnModeText = view.findViewById(R.id.btnModeText);
         btnModePan = view.findViewById(R.id.btnModePan);
-        btnModeEraser = view.findViewById(R.id.btnModeEraser); // Nuevo botón
+        btnModeEraser = view.findViewById(R.id.btnModeEraser);
         btnAddText = view.findViewById(R.id.btnAddText);
     }
 
     private void setupTouchLogic() {
         scaleGestureDetector = new ScaleGestureDetector(requireContext(), new ScaleListener());
 
-        // El Listener principal en drawingView coordina Dibujo, Selección y Movimiento Global
         drawingView.setOnTouchListener((v, event) -> {
             scaleGestureDetector.onTouchEvent(event);
 
-            // Obtener coordenadas relativas a la vista
             float x = event.getX();
             float y = event.getY();
-
-            // Coordenadas raw para cálculos de delta precisos en pantalla
             float rawX = event.getRawX();
             float rawY = event.getRawY();
 
@@ -129,30 +165,24 @@ public class CreateNoteFragment extends Fragment {
                     lastTouchY = rawY;
                     isDraggingItem = false;
 
-                    // 1. LÓGICA MODO BORRADOR
                     if (currentMode == MODE_ERASER) {
                         DrawingView.Stroke strokeToDelete = drawingView.findStrokeAt(x, y);
                         if (strokeToDelete != null) {
                             drawingView.deleteStroke(strokeToDelete);
                             return true;
                         }
-                        // Si no tocó trazo, podría haber tocado texto, pero eso lo maneja el OnTouch del texto
                     }
 
-                    // 2. LÓGICA MODO MANO (Mover Items)
                     if (currentMode == MODE_PAN) {
-                        // Intentar agarrar un trazo
                         draggingStroke = drawingView.findStrokeAt(x, y);
                         if (draggingStroke != null) {
                             isDraggingItem = true;
                         }
-                        // Si no agarramos trazo, moveremos la hoja (lógica abajo en ACTION_MOVE)
                     }
 
-                    // 3. LÓGICA MODO DIBUJO
                     if (currentMode == MODE_DRAW && event.getPointerCount() == 1) {
                         drawingView.startPath(x, y);
-                        return true; // Consumimos para dibujar
+                        return true;
                     }
                     break;
                 }
@@ -163,7 +193,6 @@ public class CreateNoteFragment extends Fragment {
                     float dx = rawX - lastTouchX;
                     float dy = rawY - lastTouchY;
 
-                    // A. Si estamos dibujando
                     if (currentMode == MODE_DRAW && !scaleGestureDetector.isInProgress() && event.getPointerCount() == 1) {
                         drawingView.movePath(x, y);
                         lastTouchX = rawX;
@@ -171,17 +200,13 @@ public class CreateNoteFragment extends Fragment {
                         return true;
                     }
 
-                    // B. Si estamos moviendo un ITEM (Trazo)
                     if (currentMode == MODE_PAN && isDraggingItem && draggingStroke != null) {
-                        // Ajustamos dx/dy por el factor de escala inverso para que el movimiento siga al dedo 1:1 visualmente
                         drawingView.moveStroke(draggingStroke, dx / scaleFactor, dy / scaleFactor);
                         lastTouchX = rawX;
                         lastTouchY = rawY;
                         return true;
                     }
 
-                    // C. Movimiento Global de la Hoja (Pan)
-                    // Ocurre si es modo PAN y no agarramos item, O si usamos 2 dedos en cualquier modo
                     if ((currentMode == MODE_PAN && !isDraggingItem) || scaleGestureDetector.isInProgress() || event.getPointerCount() > 1) {
                         globalPosX += dx;
                         globalPosY += dy;
@@ -206,7 +231,6 @@ public class CreateNoteFragment extends Fragment {
                 }
             }
 
-            // Si es modo Borrador o Mano, siempre consumimos para evitar comportamientos raros
             if (currentMode == MODE_ERASER || currentMode == MODE_PAN) return true;
 
             return false;
@@ -229,7 +253,6 @@ public class CreateNoteFragment extends Fragment {
         });
     }
 
-    // --- Lógica de Transformación Global ---
     private void applyTransformations() {
         workArea.setScaleX(scaleFactor);
         workArea.setScaleY(scaleFactor);
@@ -247,7 +270,6 @@ public class CreateNoteFragment extends Fragment {
         }
     }
 
-    // --- Gestión de Modos ---
     private void setMode(int mode) {
         currentMode = mode;
 
@@ -278,7 +300,6 @@ public class CreateNoteFragment extends Fragment {
         }
     }
 
-    // --- Lógica de Texto ---
     private void addDraggableText() {
         EditText et = new EditText(requireContext());
         et.setText("Texto");
@@ -294,9 +315,7 @@ public class CreateNoteFragment extends Fragment {
         params.gravity = Gravity.CENTER;
         et.setLayoutParams(params);
 
-        // Touch Listener específico para el Texto
         et.setOnTouchListener((view, event) -> {
-            // 1. SI ES BORRADOR: Borrar texto al tocar
             if (currentMode == MODE_ERASER) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     textContainer.removeView(view);
@@ -305,24 +324,20 @@ public class CreateNoteFragment extends Fragment {
                 return true;
             }
 
-            // 2. SI ES DIBUJO: Ignorar texto (para no moverlo por error)
             if (currentMode == MODE_DRAW) return false;
 
-            // 3. SI ES MANO O TEXTO: Permitir mover
-            // NOTA: En modo TEXTO también permitimos mover para acomodarlo
             if (currentMode == MODE_PAN || currentMode == MODE_TEXT) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         lastTouchX = event.getRawX();
                         lastTouchY = event.getRawY();
                         if (currentMode == MODE_TEXT) setActiveText((EditText) view);
-                        return true; // Consumir evento para empezar drag
+                        return true;
 
                     case MotionEvent.ACTION_MOVE:
                         float dx = event.getRawX() - lastTouchX;
                         float dy = event.getRawY() - lastTouchY;
 
-                        // Mover la vista ajustando por la escala para que siga al dedo
                         view.setX(view.getX() + (dx / scaleFactor));
                         view.setY(view.getY() + (dy / scaleFactor));
 
@@ -331,11 +346,10 @@ public class CreateNoteFragment extends Fragment {
                         return true;
 
                     case MotionEvent.ACTION_UP:
-                        // Si fue un clic rápido en modo TEXTO, dar foco para editar
                         if (currentMode == MODE_TEXT) {
                             view.performClick();
                             view.requestFocus();
-                            return false; // Dejar pasar para que salga el teclado
+                            return false;
                         }
                         return true;
                 }

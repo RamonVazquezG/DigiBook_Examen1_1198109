@@ -8,20 +8,24 @@ import android.app.TimePickerDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -36,6 +40,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.NavOptions;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.digibook_examen1_1198109.databinding.FragmentDashboardBinding;
 
@@ -43,9 +48,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
-
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
+import java.util.List;
 
 public class dashboardFragment extends Fragment {
 
@@ -55,13 +58,19 @@ public class dashboardFragment extends Fragment {
     private ActivityResultLauncher<String> requestStoragePermissionLauncher;
     private ActivityResultLauncher<String> requestNotificationPermissionLauncher;
     private ActivityResultLauncher<Intent> pdfPickerLauncher;
+
     private UserManager userManager;
     private NetworkReceiver networkReceiver;
+
+    // Variables para las notas
+    private NoteRepository noteRepository;
+    private NotesAdapter notesAdapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         userManager = new UserManager(requireContext());
+        noteRepository = new NoteRepository(requireContext()); // Inicializar repo
 
         requestCameraPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
             if (isGranted) {
@@ -132,6 +141,28 @@ public class dashboardFragment extends Fragment {
         setupClickListeners();
         setupMenu();
         checkNotificationPermission();
+
+        // Configurar la lista de notas
+        setupNotesList();
+    }
+
+    private void setupNotesList() {
+        binding.recyclerNotes.setLayoutManager(new LinearLayoutManager(getContext()));
+        // Listener para cuando haces clic en una nota
+        notesAdapter = new NotesAdapter(noteRepository.getSavedNotes(), noteName -> {
+            // Navegar a CreateNoteFragment con el nombre de la nota para abrirla
+            Bundle bundle = new Bundle();
+            bundle.putString("noteName", noteName);
+            Navigation.findNavController(requireView()).navigate(R.id.action_dashboard_to_createNote, bundle);
+        });
+        binding.recyclerNotes.setAdapter(notesAdapter);
+    }
+
+    // Método para refrescar la lista (útil al regresar de crear una nota)
+    private void refreshNotesList() {
+        if (notesAdapter != null && noteRepository != null) {
+            notesAdapter.updateData(noteRepository.getSavedNotes());
+        }
     }
 
     private void loadUserData() {
@@ -201,17 +232,38 @@ public class dashboardFragment extends Fragment {
             }
         });
 
-        // ---- ACTUALIZADO: Navegar al fragmento de notas ----
-        binding.buttonNewNotebook.setOnClickListener(v -> {
-            Navigation.findNavController(v).navigate(R.id.action_dashboard_to_createNote);
-        });
+        binding.buttonNewNotebook.setOnClickListener(v -> showCreateNoteDialog(v));
 
         binding.buttonSetAlarm.setOnClickListener(v -> showTimePickerDialog());
 
-        // Listener para Cita
         binding.buttonOpenQuote.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.action_dashboardFragment_to_quoteFragment);
         });
+    }
+
+    private void showCreateNoteDialog(View view) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Nueva Nota Digital");
+        builder.setMessage("Ingresa un nombre para tu nota:");
+
+        final EditText input = new EditText(requireContext());
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        builder.setPositiveButton("Crear", (dialog, which) -> {
+            String noteName = input.getText().toString().trim();
+            if (!noteName.isEmpty()) {
+                Bundle bundle = new Bundle();
+                bundle.putString("noteName", noteName);
+                Navigation.findNavController(view).navigate(R.id.action_dashboard_to_createNote, bundle);
+            } else {
+                Toast.makeText(getContext(), "El nombre no puede estar vacío", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
+
+        builder.show();
     }
 
     private void showPermissionRationaleDialog() {
@@ -252,7 +304,6 @@ public class dashboardFragment extends Fragment {
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
 
-        // Crear y mostrar el TimePickerDialog
         TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
                 (view, hourOfDay, minute1) -> setAlarm(hourOfDay, minute1),
                 hour, minute, true);
@@ -336,7 +387,6 @@ public class dashboardFragment extends Fragment {
         navController.navigate(R.id.action_dashboardFragment_to_loginFragment, null, navOptions);
     }
 
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -349,7 +399,10 @@ public class dashboardFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Registrar BroadcastReceiver dinámicamente para cambios en tiempo real
+
+        // REFRESCAR LA LISTA DE NOTAS AL VOLVER
+        refreshNotesList();
+
         networkReceiver = new NetworkReceiver(binding.getRoot(), isConnected -> {
             if (binding != null) {
                 if (isConnected) {
@@ -367,7 +420,6 @@ public class dashboardFragment extends Fragment {
         requireActivity().registerReceiver(networkReceiver, filter);
     }
 
-    // Desregistrar el BroadcastReceiver al pausar el fragmento
     @Override
     public void onPause() {
         super.onPause();
@@ -375,10 +427,7 @@ public class dashboardFragment extends Fragment {
             try {
                 requireActivity().unregisterReceiver(networkReceiver);
             } catch (IllegalArgumentException e) {
-                // Ya estaba desregistrado
             }
         }
     }
-
-
 }

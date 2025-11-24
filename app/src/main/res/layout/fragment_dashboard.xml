@@ -1,184 +1,209 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/dashboardScrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
+    android:orientation="vertical"
+    android:background="#F5F5F5"
     tools:context=".dashboardFragment">
 
+    <!-- Encabezado Perfil -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:background="@android:color/white"
+        android:padding="20dp"
+        android:elevation="4dp">
 
-        <!-- Perfil existente -->
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/imageUserProfile"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_marginTop="32dp"
-            android:background="@drawable/bg_profile_image_border"
-            android:clickable="true"
-            android:contentDescription="@string/user_profile_picture"
-            android:focusable="true"
-            android:padding="4dp"
-            android:scaleType="centerCrop"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@android:drawable/ic_menu_camera"
+            app:civ_border_width="2dp"
+            app:civ_border_color="#FF9800"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@android:drawable/ic_menu_camera"
-            tools:srcCompat="@tools:sample/avatars" />
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <TextView
+            android:id="@+id/textWelcome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bienvenido,"
+            android:textSize="16sp"
+            android:textColor="@android:color/darker_gray"
+            android:layout_marginStart="16dp"
+            app:layout_constraintStart_toEndOf="@id/imageUserProfile"
+            app:layout_constraintTop_toTopOf="@id/imageUserProfile"
+            android:layout_marginTop="8dp"/>
 
         <TextView
             android:id="@+id/textUsername"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+            android:text="Usuario"
+            android:textSize="24sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/imageUserProfile"
-            tools:text="Usuario" />
+            android:textColor="@android:color/black"
+            android:layout_marginStart="16dp"
+            app:layout_constraintStart_toEndOf="@id/imageUserProfile"
+            app:layout_constraintTop_toBottomOf="@id/textWelcome" />
 
-        <!--  Sección de API -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardInspiration"
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Contenido Principal con Scroll -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="#E8F5E9"
-            app:layout_constraintTop_toBottomOf="@id/textUsername">
+            android:orientation="vertical"
+            android:padding="20dp">
 
+            <!-- Botones de Acción -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="✨ Inspiración Diaria"
-                    android:textStyle="bold"
-                    android:textSize="18sp"
-                    android:textColor="#2E7D32"/>
-
-                <TextView
-                    android:id="@+id/textApiStatus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Toca para ver una frase motivacional"
-                    android:textSize="14sp"/>
+                android:orientation="horizontal"
+                android:weightSum="2">
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/buttonOpenQuote"
+                    android:id="@+id/buttonNewNotebook"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="Nuevo Cuaderno"
+                    app:icon="@android:drawable/ic_input_add"
+                    android:backgroundTint="#FF9800"
+                    android:textColor="@android:color/white"
+                    app:cornerRadius="12dp"
+                    android:paddingVertical="12dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonLastNotebook"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="Abrir PDF"
+                    app:icon="@android:drawable/ic_menu_search"
+                    android:backgroundTint="@android:color/white"
+                    android:textColor="#FF9800"
+                    app:strokeColor="#FF9800"
+                    app:strokeWidth="1dp"
+                    app:cornerRadius="12dp"
+                    android:paddingVertical="12dp"/>
+            </LinearLayout>
+
+            <!-- Sección de Alarmas -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Ver Cita"
-                    android:backgroundTint="#43A047"/>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-        <!-- Estadísticas -->
-        <androidx.gridlayout.widget.GridLayout
-            android:id="@+id/gridLayoutStats"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            app:columnCount="2"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cardInspiration"
-            app:useDefaultMargins="true">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Recordatorios de Estudio"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:layout_marginBottom="8dp"/>
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="4dp"
-                app:layout_columnWeight="1"
-                app:layout_gravity="fill"
-                app:contentPadding="16dp">
-                <LinearLayout android:orientation="vertical" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content">
-                    <TextView android:text="12" android:textStyle="bold" android:textSize="24sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                    <TextView android:text="@string/created_notebooks" android:textSize="12sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/textAlarmStatus"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Sin alarma activa"
+                            android:textColor="@android:color/darker_gray"/>
+
+                        <Button
+                            android:id="@+id/buttonSetAlarm"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Configurar"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"/>
+                    </LinearLayout>
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+            </androidx.cardview.widget.CardView>
 
-            <com.google.android.material.card.MaterialCardView
+            <!-- Sección de Citas -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="4dp"
-                app:layout_columnWeight="1"
-                app:layout_gravity="fill"
-                app:contentPadding="16dp">
-                <LinearLayout android:orientation="vertical" android:gravity="center" android:layout_width="match_parent" android:layout_height="wrap_content">
-                    <TextView android:text="150" android:textStyle="bold" android:textSize="24sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                    <TextView android:text="@string/written_sheets" android:textSize="12sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Motivación Diaria"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:id="@+id/textApiStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Verificando conexión..."
+                        android:textSize="14sp"
+                        android:layout_marginBottom="8dp"/>
+
+                    <Button
+                        android:id="@+id/buttonOpenQuote"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Ver Frase del Día"
+                        android:backgroundTint="#4CAF50"/>
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-        </androidx.gridlayout.widget.GridLayout>
+            </androidx.cardview.widget.CardView>
 
-        <!-- Botones -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/buttonLastNotebook"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
-            android:layout_height="60dp"
-            android:layout_marginTop="16dp"
-            android:text="@string/last_notebook"
-            app:icon="@android:drawable/ic_menu_recent_history"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/gridLayoutStats" />
+            <!-- NUEVA SECCIÓN: Lista de Notas -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Mis Notas Guardadas"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"/>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/buttonNewNotebook"
-            android:layout_width="0dp"
-            android:layout_height="60dp"
-            android:layout_marginTop="16dp"
-            android:text="@string/new_notebook"
-            app:icon="@android:drawable/ic_menu_add"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/buttonLastNotebook" />
+            <!-- Aquí es donde aparecerán tus notas -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerNotes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/item_note"
+                tools:itemCount="3"/>
 
-        <!-- Alarma -->
-        <TextView
-            android:id="@+id/textAlarmTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/alarm_settings"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-            android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/buttonNewNotebook" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/buttonSetAlarm"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/set_alarm"
-            app:icon="@android:drawable/ic_lock_idle_alarm"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textAlarmTitle" />
-
-        <TextView
-            android:id="@+id/textAlarmStatus"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:gravity="center"
-            android:text="Sin alarma activa"
-            app:layout_constraintTop_toBottomOf="@id/buttonSetAlarm" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.core.widget.NestedScrollView>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
