@@ -25,7 +25,9 @@ import com.example.digibook_examen1_1198109.R;
 
 import java.util.ArrayList;
 import java.util.List;
+// Merge
 
+// Fragmento para crear notas con dibujo y texto
 public class CreateNoteFragment extends Fragment {
 
     private DrawingView drawingView;
