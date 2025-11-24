@@ -54,7 +54,7 @@ public class NoteRepository {
         }
     }
 
-    // NUEVO: Obtener la lista de nombres de notas guardadas
+    // Obtener la lista de nombres de notas guardadas
     public List<String> getSavedNotes() {
         List<String> notes = new ArrayList<>();
         File dir = context.getFilesDir();
@@ -63,12 +63,18 @@ public class NoteRepository {
         if (files != null) {
             for (File file : files) {
                 if (file.isFile() && file.getName().endsWith(".json")) {
-                    // Quitamos la extensión .json para mostrar solo el nombre
                     String name = file.getName().replace(".json", "");
                     notes.add(name);
                 }
             }
         }
         return notes;
+    }
+
+    // NUEVO: Eliminar una nota
+    public boolean deleteNote(String noteName) {
+        String fileName = noteName + ".json";
+        File file = new File(context.getFilesDir(), fileName);
+        return file.delete();
     }
 }

@@ -70,7 +70,7 @@ public class dashboardFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         userManager = new UserManager(requireContext());
-        noteRepository = new NoteRepository(requireContext()); // Inicializar repo
+        noteRepository = new NoteRepository(requireContext());
 
         requestCameraPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
             if (isGranted) {
@@ -147,18 +147,48 @@ public class dashboardFragment extends Fragment {
     }
 
     private void setupNotesList() {
+        // Deshabilitar scroll anidado para que funcione bien dentro del NestedScrollView
+        binding.recyclerNotes.setNestedScrollingEnabled(false);
         binding.recyclerNotes.setLayoutManager(new LinearLayoutManager(getContext()));
-        // Listener para cuando haces clic en una nota
-        notesAdapter = new NotesAdapter(noteRepository.getSavedNotes(), noteName -> {
-            // Navegar a CreateNoteFragment con el nombre de la nota para abrirla
-            Bundle bundle = new Bundle();
-            bundle.putString("noteName", noteName);
-            Navigation.findNavController(requireView()).navigate(R.id.action_dashboard_to_createNote, bundle);
+
+        // Configurar el adaptador con los listeners de clic y borrado
+        notesAdapter = new NotesAdapter(noteRepository.getSavedNotes(), new NotesAdapter.OnNoteInteractionListener() {
+            @Override
+            public void onNoteClick(String noteName) {
+                openNote(noteName);
+            }
+
+            @Override
+            public void onNoteDelete(String noteName) {
+                showDeleteConfirmationDialog(noteName);
+            }
         });
         binding.recyclerNotes.setAdapter(notesAdapter);
     }
 
-    // Método para refrescar la lista (útil al regresar de crear una nota)
+    private void openNote(String noteName) {
+        Bundle bundle = new Bundle();
+        bundle.putString("noteName", noteName);
+        Navigation.findNavController(requireView()).navigate(R.id.action_dashboard_to_createNote, bundle);
+    }
+
+    private void showDeleteConfirmationDialog(String noteName) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Eliminar Nota")
+                .setMessage("¿Estás seguro de que quieres borrar \"" + noteName + "\"? Esta acción no se puede deshacer.")
+                .setPositiveButton("Eliminar", (dialog, which) -> {
+                    boolean deleted = noteRepository.deleteNote(noteName);
+                    if (deleted) {
+                        Toast.makeText(getContext(), "Nota eliminada", Toast.LENGTH_SHORT).show();
+                        refreshNotesList();
+                    } else {
+                        Toast.makeText(getContext(), "Error al eliminar", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
     private void refreshNotesList() {
         if (notesAdapter != null && noteRepository != null) {
             notesAdapter.updateData(noteRepository.getSavedNotes());
@@ -400,7 +430,6 @@ public class dashboardFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        // REFRESCAR LA LISTA DE NOTAS AL VOLVER
         refreshNotesList();
 
         networkReceiver = new NetworkReceiver(binding.getRoot(), isConnected -> {

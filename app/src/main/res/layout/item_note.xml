@@ -4,9 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
-    android:layout_marginVertical="8dp"
+    android:layout_marginVertical="6dp"
     app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    app:cardElevation="3dp"
+    app:cardBackgroundColor="@android:color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,15 +16,18 @@
         android:padding="16dp"
         android:gravity="center_vertical">
 
-        <!-- Icono de nota -->
+        <!-- Icono de nota (Morado) -->
         <ImageView
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:src="@android:drawable/ic_menu_edit"
-            app:tint="#FF9800"
-            android:contentDescription="Icono Nota" />
+            app:tint="#6200EE"
+            android:contentDescription="Icono Nota"
+            android:background="@drawable/bg_profile_image_border"
+            android:padding="8dp"/>
 
         <LinearLayout
+            android:id="@+id/containerNoteData"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -35,9 +39,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Nombre de la Nota"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/black" />
+                android:textColor="@color/black" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -47,11 +51,24 @@
                 android:textColor="@android:color/darker_gray" />
         </LinearLayout>
 
+        <!-- Botón Eliminar -->
+        <ImageButton
+            android:id="@+id/btnDeleteNote"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@android:drawable/ic_menu_delete"
+            app:tint="#D32F2F"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Borrar Nota"
+            android:padding="8dp"/>
+
+        <!-- Flecha indicadora -->
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@android:drawable/ic_media_play"
-            app:tint="@android:color/darker_gray" />
+            app:tint="@android:color/darker_gray"
+            android:layout_marginStart="4dp"/>
 
     </LinearLayout>
 

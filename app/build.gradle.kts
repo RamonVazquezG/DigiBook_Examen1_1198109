@@ -49,6 +49,8 @@ dependencies {
     // UI
     implementation(libs.cardview)
     implementation(libs.gridlayout)
+    // CORRECCIÓN: Agregamos la librería de CircleImageView
+    implementation(libs.circleimageview)
 
     // Firebase Cloud Messaging (FCM)
     implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
